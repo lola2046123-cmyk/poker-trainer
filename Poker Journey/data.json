@@ -1,0 +1,336 @@
+{
+  "chapters": [
+    {
+      "chapter_info": {
+        "chapter_id": 0,
+        "chapter_name": "第 0 章：破冰扫盲班",
+        "description": "不用算概率，全凭直觉！花 2 分钟搞懂黑帮圆桌的规矩。",
+        "initial_hp": 100
+      },
+      "levels": [
+        {
+          "level_id": 101,
+          "title": "比大小：单身狗 vs 双胞胎",
+          "scenario": "【牌力测试 1/3】纯靠直觉，左边是一对 A，右边是一张 A 和一张 K 的散牌，谁大？",
+          "hand": ["As", "Ah"],
+          "board": ["Ad", "Kc"],
+          "options": [
+            {
+              "action": "一对 A 大",
+              "is_correct": true,
+              "hp_change": 10,
+              "sharky_emotion": "laugh",
+              "sharky_feedback": "废话！成双成对永远比单身狗强。只要成了一对，就碾压所有没凑对的散牌！"
+            },
+            {
+              "action": "AK 散牌大",
+              "is_correct": false,
+              "hp_change": -10,
+              "sharky_emotion": "facepalm",
+              "sharky_feedback": "你是不是觉得 K 很大？记住，在德扑里，没凑成对子的牌，再大也是个弟弟。"
+            }
+          ]
+        },
+        {
+          "level_id": 102,
+          "title": "比大小：双胞胎 vs 三胞胎",
+          "scenario": "【牌力测试 2/3】你手里是一对 A（双胞胎），老王手里是三个 2（三胞胎）。谁赢？",
+          "hand": ["As", "Ah"],
+          "board": ["2c", "2d", "2h"],
+          "options": [
+            {
+              "action": "我的 AA 大，A 最大！",
+              "is_correct": false,
+              "hp_change": -10,
+              "sharky_emotion": "angry",
+              "sharky_feedback": "大错特错！再小的三胞胎，也打得过双胞胎！这就叫【三条 (Set)】，记住：数量碾压质量！"
+            },
+            {
+              "action": "老王的三个 2 大",
+              "is_correct": true,
+              "hp_change": 10,
+              "sharky_emotion": "cool",
+              "sharky_feedback": "聪明！不管多小的数字，凑齐三个就叫【三条 (Set)】，直接把你的 AA 按在地上摩擦！"
+            }
+          ]
+        },
+        {
+          "level_id": 103,
+          "title": "比大小：顺子 vs 同花",
+          "scenario": "【牌力测试 3/3】左边是 5 张连着的牌（顺子），右边是 5 张全都是红桃但没连着的牌（同花）。",
+          "hand": ["5h", "6h", "7h", "8h", "9s"],
+          "board": ["2h", "5h", "9h", "Jh", "Kh"],
+          "options": [
+            {
+              "action": "顺子大 (Straight)",
+              "is_correct": false,
+              "hp_change": -10,
+              "sharky_emotion": "facepalm",
+              "sharky_feedback": "这是新手最容易死的地方！记住：颜色统一才是王道，【同花】永远比【顺子】大！"
+            },
+            {
+              "action": "同花大 (Flush)",
+              "is_correct": true,
+              "hp_change": 10,
+              "sharky_emotion": "cool",
+              "sharky_feedback": "满分！【同花 (Flush)】比顺子大，你已经越过了新手最容易破产的第一个天坑。"
+            }
+          ]
+        },
+        {
+          "level_id": 104,
+          "title": "黑帮聚餐：话事人是谁？",
+          "scenario": "【位置规矩 1/3】黑帮开会，谁拥有最大的特权？",
+          "hand": [],
+          "board": [],
+          "options": [
+            {
+              "action": "第一个发言的人",
+              "is_correct": false,
+              "hp_change": -10,
+              "sharky_emotion": "facepalm",
+              "sharky_feedback": "第一个发言那叫'探雷的炮灰'！在德扑里，别人底牌都亮了你再说话，才是真正的掌控者。"
+            },
+            {
+              "action": "最后一个发言的人",
+              "is_correct": true,
+              "hp_change": 10,
+              "sharky_emotion": "laugh",
+              "sharky_feedback": "透彻！这就叫【庄家位 (Dealer/BTN)】。坐在这个位置，你就是全场看戏的话事人！"
+            }
+          ]
+        },
+        {
+          "level_id": 105,
+          "title": "黑帮聚餐：倒霉的盲注",
+          "scenario": "【位置规矩 2/3】庄家左边有两个倒霉蛋，牌还没发就被逼着交了'茶位费'（盲注），为什么？",
+          "hand": [],
+          "board": [],
+          "options": [
+            {
+              "action": "为了让底池有钱，逼大家抢",
+              "is_correct": true,
+              "hp_change": 10,
+              "sharky_emotion": "cool",
+              "sharky_feedback": "没错！不放点肉，狼怎么会咬起来？交得少的叫【小盲 (SB)】，交得多的叫【大盲 (BB)】，别同情他们。"
+            },
+            {
+              "action": "因为他们长得丑，被针对了",
+              "is_correct": false,
+              "hp_change": -10,
+              "sharky_emotion": "laugh",
+              "sharky_feedback": "哈哈虽然很好笑，但不对！强制交钱是为了制造抢夺的欲望，这就是【盲注 (Blinds)】的由来。"
+            }
+          ]
+        },
+        {
+          "level_id": 106,
+          "title": "黑帮聚餐：危险的枪口",
+          "scenario": "【位置规矩 3/3】大盲注左边的人，叫【枪口位 (UTG)】，因为他是全桌第一个必须说话的人。这位置好吗？",
+          "hand": [],
+          "board": [],
+          "options": [
+            {
+              "action": "好！先发制人！",
+              "is_correct": false,
+              "hp_change": -10,
+              "sharky_emotion": "angry",
+              "sharky_feedback": "顶着枪口探路，你不是炮灰谁是？后面还有好几个人没表态呢，随时可能跳出个大 Boss！"
+            },
+            {
+              "action": "差！容易被后面的人埋伏",
+              "is_correct": true,
+              "hp_change": 10,
+              "sharky_emotion": "cool",
+              "sharky_feedback": "悟性极高！在这个位置，没有极品好牌千万别轻举妄动，这就是德扑的生存法则。"
+            }
+          ]
+        },
+        {
+          "level_id": 107,
+          "title": "黑话翻译机：打不过怎么办？",
+          "scenario": "【行动暗号】老王加注了！你手里牌烂得没眼看，你应该大喊一句什么？",
+          "hand": [],
+          "board": [],
+          "options": [
+            {
+              "action": "Call (跟着交钱)",
+              "is_correct": false,
+              "hp_change": -10,
+              "sharky_emotion": "angry",
+              "sharky_feedback": "牌烂你还 Call？你是不是老王派来的卧底？"
+            },
+            {
+              "action": "Raise (加倍干他)",
+              "is_correct": false,
+              "hp_change": -20,
+              "sharky_emotion": "facepalm",
+              "sharky_feedback": "拿烂牌去吓唬人叫【偷鸡 (Bluff)】，但小白不建议随便用，容易骨折！"
+            },
+            {
+              "action": "Fold (认怂弃牌)",
+              "is_correct": true,
+              "hp_change": 10,
+              "sharky_emotion": "laugh",
+              "sharky_feedback": "完美！打不过就跑，这叫【Fold】。恭喜你，你已经正式从'纯小白'进化成'懂规矩的鱼'了！"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "chapter_info": {
+        "chapter_id": 1,
+        "chapter_name": "迷雾新手村",
+        "description": "目标：活过前三个回合，戒掉'什么牌都想看一眼'的坏习惯。",
+        "initial_hp": 100
+      },
+      "levels": [
+        {"level_id":1,"title":"初见屠龙刀","scenario":"你在庄家位（最后行动）。前面一直弃牌，轮到老王，他突然加注 3 个大盲注。","hand":["As","Ah"],"board":[],"options":[{"action":"弃牌 (Fold)","is_correct":false,"hp_change":-30,"sharky_emotion":"facepalm","sharky_feedback":"兄弟，AA 你都扔？你是菩萨转世来发筹码的吗？这可是德扑的屠龙宝刀！"},{"action":"平跟 (Call)","is_correct":false,"hp_change":-10,"sharky_emotion":"angry","sharky_feedback":"慢打 AA 就是给老王送命题。万一翻牌出个乱七八糟的顺子面，你怎么哭的都不知道！"},{"action":"反加注 (3-Bet)","is_correct":true,"hp_change":20,"sharky_emotion":"cool","sharky_feedback":"漂亮！拿着核武器就该重拳出击，让想收废品的人交足过路费！"}]},
+        {"level_id":2,"title":"废品回收站","scenario":"你在枪口位（第一个行动）。发牌员给你发了一手德扑里名声最臭的牌。","hand":["7d","2c"],"board":[],"options":[{"action":"全押 (All-in)","is_correct":false,"hp_change":-50,"sharky_emotion":"angry","sharky_feedback":"拿着 72o 梭哈？你是不是以为你在拍赌神电影？老王的法拉利就是这么赢来的！"},{"action":"平跟 (Call)","is_correct":false,"hp_change":-20,"sharky_emotion":"facepalm","sharky_feedback":"这牌连凑顺子和同花都没戏，花钱看翻牌等于把钱扔进太平洋。"},{"action":"弃牌 (Fold)","is_correct":true,"hp_change":10,"sharky_emotion":"cool","sharky_feedback":"这就对了！德扑赢钱的秘诀第一条：管住手，不玩垃圾牌。你已经比 50% 的新手强了。"}]},
+        {"level_id":3,"title":"位置的霸权","scenario":"你在庄家位（BTN）。前面所有人都弃牌了，现在底池里只有盲注。你手里的牌很一般。","hand":["Kd","8s"],"board":[],"options":[{"action":"弃牌 (Fold)","is_correct":false,"hp_change":-10,"sharky_emotion":"facepalm","sharky_feedback":"太怂了！前面都没人要，你坐在最好的位置，这可是白捡盲注的黄金机会。"},{"action":"加注 (Raise)","is_correct":true,"hp_change":15,"sharky_emotion":"laugh","sharky_feedback":"干得好！这就是'位置红利'。牌不够好没关系，咱们利用最后说话的权力偷走它！"}]},
+        {"level_id":4,"title":"危险的诱惑","scenario":"翻牌前，你在中间位置，拿到一手看起来很漂亮的同花连张，但老王在前面下了重注。","hand":["6h","7h"],"board":[],"options":[{"action":"跟注 (Call)","is_correct":false,"hp_change":-15,"sharky_emotion":"angry","sharky_feedback":"老王下重注说明牌力很强。你拿着小牌去硬刚，等同花凑出来的概率不到 1/3，赔率太不划算了！"},{"action":"弃牌 (Fold)","is_correct":true,"hp_change":10,"sharky_emotion":"cool","sharky_feedback":"纪律性极佳！同花连张虽好，但代价太高时必须学会果断放手。"}]},
+        {"level_id":5,"title":"顶对不等于无敌","scenario":"进入翻牌圈！你击中了顶对，正准备庆祝，但对面的紧凶玩家直接 All-in 全押了。","hand":["As","9d"],"board":["Ah","Kc","Qd"],"options":[{"action":"跟注接战 (Call)","is_correct":false,"hp_change":-40,"sharky_emotion":"angry","sharky_feedback":"你疯了吗？牌面 A-K-Q 这么危险，你的跟脚（Kicker）只有个 9。对面不是顺子就是两对，你死定了！"},{"action":"弃牌逃跑 (Fold)","is_correct":true,"hp_change":15,"sharky_emotion":"cool","sharky_feedback":"顶级嗅觉！能扔掉顶对的玩家才算真正入了门。留得青山在，不怕没柴烧。"}]},
+        {"level_id":6,"title":"金刚石也怕暗箭","scenario":"你拿了手大对子。但翻牌发出了三张连着的同花色。对面突然开始疯狂下注。","hand":["Qc","Qs"],"board":["7h","8h","9h"],"options":[{"action":"加注 (Raise)","is_correct":false,"hp_change":-25,"sharky_emotion":"facepalm","sharky_feedback":"盘面这么湿（危险），你拿个没有红桃的 QQ 去装大款？对面如果是红桃同花，你已经在给人家打工了。"},{"action":"跟注 (Call) 或 弃牌 (Fold)","is_correct":true,"hp_change":10,"sharky_emotion":"laugh","sharky_feedback":"稳妥。控制底池，看清局势再行动，这牌面确实不值得拼命。"}]},
+        {"level_id":7,"title":"老王的底裤","scenario":"河牌圈（最后一张）。底池有 1000 分。老王极其犹豫地丢出了 100 分。你手里只有个第三大的对子。","hand":["Jd","10c"],"board":["2s","Kd","Jh","4c","8s"],"options":[{"action":"弃牌 (Fold)","is_correct":false,"hp_change":-10,"sharky_emotion":"facepalm","sharky_feedback":"这么好的赔率你跑什么？只要花 100 就能赢 1100。老王这种下注，大概率是在极其心虚地试探！"},{"action":"跟注 (Call)","is_correct":true,"hp_change":20,"sharky_emotion":"cool","sharky_feedback":"抓得好！这就是'底池赔率'的魔力。这价格，就算十次输九次，只要赢一次也是回本的！"}]},
+        {"level_id":8,"title":"同花听牌的算计","scenario":"转牌圈。你差一张红桃就能凑成同花。底池 500，对手下注 500（满池）。","hand":["Ah","4h"],"board":["Kh","7c","2h","Qs"],"options":[{"action":"跟注 (Call)","is_correct":false,"hp_change":-20,"sharky_emotion":"angry","sharky_feedback":"别追了！你听花的概率只有 20% 左右，但他下了满池，赔率完全不支持你强行买牌。这叫白给！"},{"action":"弃牌 (Fold)","is_correct":true,"hp_change":15,"sharky_emotion":"laugh","sharky_feedback":"理智！德扑不是买彩票，算不赢的账咱们坚决不做。"}]},
+        {"level_id":9,"title":"两把大刀的碰撞","scenario":"你拿了 AK，德扑第二强起手牌。前面紧凶对手 3-Bet 加注，你该怎么办？","hand":["As","Kd"],"board":[],"options":[{"action":"弃牌 (Fold)","is_correct":false,"hp_change":-15,"sharky_emotion":"facepalm","sharky_feedback":"AK 你都扔？太浪费天赋了！这牌至少有资格去看看翻牌。"},{"action":"4-Bet反加 / 平跟 (Raise/Call)","is_correct":true,"hp_change":15,"sharky_emotion":"cool","sharky_feedback":"霸气！AK 就要打出侵略性。就算没中牌，也能把一些弱牌吓跑。"}]},
+        {"level_id":10,"title":"Boss战：教父的凝视","scenario":"你手里是口袋 Q。翻牌发出一张 A。全场最强的对手突然全押。他的眼神像 AlphaX 一样冰冷。","hand":["Qh","Qc"],"board":["As","8d","2c"],"options":[{"action":"死磕到底 (Call)","is_correct":false,"hp_change":-50,"sharky_emotion":"angry","sharky_feedback":"GameOver。翻牌有 A，你的 QQ 已经变成废纸了。面对高手的强力下注，不信邪只有死路一条！"},{"action":"果断弃牌 (Fold)","is_correct":true,"hp_change":30,"sharky_emotion":"laugh","sharky_feedback":"恭喜通关！懂得敬畏 A，懂得在高压下放弃好牌，你已经具备了上桌收割老王的基本功！"}]},
+        {"level_id":11,"title":"金玉其外，败絮其中","scenario":"翻牌前。你是【枪口位 (UTG)】第一个行动。你低头一看，拿到了一把看起来很漂亮的牌：K♠ 和 J♦。此时底池只有盲注，没有人下注。","hand":["Ks","Jd"],"board":[],"options":[{"action":"果断加注 (Raise)！","is_correct":false,"hp_change":-15,"sharky_emotion":"angry","sharky_feedback":"KJo 在枪口位一加注，后面随便来个 3-Bet 你就得痛苦弃牌。位置越差，手牌要求必须越高！"},{"action":"悄悄跟注 (Call) 进去看看","is_correct":false,"hp_change":-10,"sharky_emotion":"facepalm","sharky_feedback":"跟注进去也是送钱。这牌在枪口位就是『破产提款机』，赶紧扔！"},{"action":"无情弃牌 (Fold)！","is_correct":true,"hp_change":15,"sharky_emotion":"cool","sharky_feedback":"KJo 在枪口位简直就是『破产提款机』！虽然有两张花牌，但在你身后还有 7-8 个人没表态。你一旦加注，稍微遇到个懂哥 3-Bet（反加）你，你只能痛苦弃牌。记住：位置越差，手牌要求必须越高！这牌赶紧扔！"}]},
+        {"level_id":12,"title":"致命的『小踢脚』","scenario":"翻牌前你拿着 A♣ 7♥ 平跟入局。翻牌发出：A♠ K♦ 4♣。你击中了顶对（一对 A）！老王突然往底池里下了一个重注（满池）。","hand":["Ac","7h"],"board":["As","Kd","4c"],"options":[{"action":"跟他干！跟注 (Call)","is_correct":false,"hp_change":-25,"sharky_emotion":"angry","sharky_feedback":"别看到一对 A 就走不动道了！老王敢在这个面下重注，极可能是 AK、AQ 甚至 AJ，你的 7 踢脚太小，被『主导』了。"},{"action":"老王肯定在偷鸡，全押 (All-in)！","is_correct":false,"hp_change":-35,"sharky_emotion":"facepalm","sharky_feedback":"人家赢你一大截，你最多只能指望天上掉个 7。全押等于送钱！"},{"action":"认怂弃牌 (Fold)","is_correct":true,"hp_change":15,"sharky_emotion":"cool","sharky_feedback":"别看到一对 A 就走不动道了！德扑比的是五张牌。老王敢在这个面下重注，他手里极大概率是 AK、AQ 甚至 AJ。你的『7』就是那个致命的弱点（踢脚太小）。这叫被『主导』了，人家赢你一大截，你最多只能指望天上掉个 7。快跑！"}]},
+        {"level_id":13,"title":"慈善家的『买花』之路","scenario":"翻牌前你拿了 8♥ 9♥。目前到了转牌圈，公共牌是 2♠ 5♥ K♦ J♥。你还差一张红桃就能做成同花！此时底池 100 块，对面老王直接下注 150 块（超池下注）。","hand":["8h","9h"],"board":["2s","5h","Kd","Jh"],"options":[{"action":"必须买！跟注 (Call) 150","is_correct":false,"hp_change":-20,"sharky_emotion":"angry","sharky_feedback":"你只有 9 张红桃能帮到你（赢率约 18%）。底池 100 他下 150，赔率根本不划算，这叫『给桌上发工资』。"},{"action":"不看了，弃牌 (Fold)","is_correct":true,"hp_change":15,"sharky_emotion":"cool","sharky_feedback":"你数学是体育老师教的吗？你只有 9 张红桃能帮到你（赢率大约 18%）。底池 100，他下注 150，你要花 150 块去赢 250 块的底池，赔率根本不划算！这种为了梦想强行跟注的行为，我们统称为『给桌上发工资』。"},{"action":"反加他，吓跑他 (Raise)","is_correct":false,"hp_change":-25,"sharky_emotion":"facepalm","sharky_feedback":"听牌反加在这种赔率下只会亏更多。弃牌才是正解。"}]},
+        {"level_id":14,"title":"别做『被害妄想症』","scenario":"河牌圈。公共牌是 5♠ 6♠ 7♠ 8♠ 2♦。桌面上已经有四张黑桃组成的同花面，而且还有顺子面。你手里只有一对 10（10♣ 10♦）。老王毫不犹豫地把全部筹码推入底池（All-in）。","hand":["10c","10d"],"board":["5s","6s","7s","8s","2d"],"options":[{"action":"抓他偷鸡！跟注 (Call)","is_correct":false,"hp_change":-40,"sharky_emotion":"angry","sharky_feedback":"这个牌面任何一张黑桃或 4、9 都能秒杀你的一对 10。老王在这里全押，极少是诈唬。别当『抓鸡大队长』！"},{"action":"惹不起，弃牌 (Fold)","is_correct":true,"hp_change":20,"sharky_emotion":"cool","sharky_feedback":"永远不要高估你在河牌抓诈唬的能力！这个牌面太恐怖了，任何一张黑桃，或者一张 4、一张 9 都能秒杀你的一对 10。老王在这里全押，极少情况是在诈唬。留得青山在，不怕没柴烧，千万别上头当『抓鸡大队长』！"}]}
+      ]
+    },
+    {
+      "chapter_info": {
+        "chapter_id": 2,
+        "chapter_name": "第二章：深水区的试探",
+        "description": "真正的绞肉机！转牌和河牌的抉择，才是拉开差距的地方。",
+        "initial_hp": 100
+      },
+      "levels": [
+        {
+          "level_id": 201,
+          "title": "转牌圈：突然掉落的炸弹",
+          "scenario": "翻牌圈你和老王都过牌了。到了转牌（第四张），突然发出一张 A。老王原本很安静，现在突然下注了半个底池！",
+          "hand": ["Ks", "Qd"],
+          "board": ["2c", "7h", "9s", "Ah"],
+          "options": [
+            {"action": "跟注 (Call) 抓他偷鸡", "is_correct": false, "hp_change": -20, "sharky_emotion": "angry", "sharky_feedback": "你手里连个对子都没有，就一个 K 高牌！别人看到 A 敢下注，大概率是击中 A 了。空城计不是这么唱的！"},
+            {"action": "光速弃牌 (Fold)", "is_correct": true, "hp_change": 15, "sharky_emotion": "cool", "sharky_feedback": "反应够快！转牌出 A 是典型的'惊悚牌'。既然自己没中，绝不给对方送一分钱。"}
+          ]
+        },
+        {
+          "level_id": 202,
+          "title": "河牌圈：价值下注的艺术",
+          "scenario": "河牌（最后一张）发完了。你运气爆棚击中了【三条 8】。老王一路都在跟着你交钱。现在轮到你最后表态。",
+          "hand": ["8s", "8h"],
+          "board": ["2d", "8c", "Kc", "Jd", "5s"],
+          "options": [
+            {"action": "All-in (全押) 吓死他", "is_correct": false, "hp_change": -15, "sharky_emotion": "facepalm", "sharky_feedback": "粗糙！太粗糙了！你突然 All-in，老王如果手里只有一对 K，他肯定会被吓跑。这就叫把客户全吓跑了！"},
+            {"action": "下注 1/3 底池 (薄价值)", "is_correct": true, "hp_change": 25, "sharky_emotion": "laugh", "sharky_feedback": "高手风范！这就叫【拿价值】。下个小注，让老王觉得'哎呀好便宜，我抓他一次'，乖乖把钱送给你。"},
+            {"action": "过牌 (Check) 假装没中", "is_correct": false, "hp_change": -20, "sharky_emotion": "angry", "sharky_feedback": "已经是最后一张牌了！你过牌，老王也过牌，这局直接结束。你拿着大牌一分钱没多赢，简直是暴殄天物！"}
+          ]
+        },
+        {
+          "level_id": 203,
+          "title": "买花破产的边缘",
+          "scenario": "转牌圈。你手里两张黑桃，桌上两张黑桃。你差一张就能凑成【同花】。但老王下了一个比底池还大的超池下注（Overbet）！",
+          "hand": ["As", "10s"],
+          "board": ["2s", "7d", "9s", "Kh"],
+          "options": [
+            {"action": "跟注 (Call) 相信光！", "is_correct": false, "hp_change": -30, "sharky_emotion": "facepalm", "sharky_feedback": "光会把你照得倾家荡产！买同花的概率只有 20%，老王下了超池注，你的【赔率】根本算不过来。这是数学题，别搞信仰！"},
+            {"action": "弃牌 (Fold) 骂骂咧咧退出", "is_correct": true, "hp_change": 20, "sharky_emotion": "cool", "sharky_feedback": "完美规避致命伤！懂得在赔率不对时放弃听牌，你就已经领先 80% 的凭感觉打牌的韭菜了。"}
+          ]
+        }
+      ]
+    },
+    {
+      "chapter_info": {
+        "chapter_id": 3,
+        "chapter_name": "第三章：心理角斗场",
+        "description": "德扑不是比谁牌大，而是比谁更能骗。学会优雅地诈唬和抓鸡！",
+        "initial_hp": 100
+      },
+      "levels": [
+        {
+          "level_id": 301,
+          "title": "持续下注 (C-Bet) 的威压",
+          "scenario": "翻牌前你拿着 AK 加注，老王跟注。翻牌发出了 2、7、J，你完美避开了所有牌，连个对子都没中。老王过牌了，你怎么办？",
+          "hand": ["As", "Kd"],
+          "board": ["2c", "7h", "Js"],
+          "options": [
+            {"action": "过牌 (Check) 认怂", "is_correct": false, "hp_change": -15, "sharky_emotion": "facepalm", "sharky_feedback": "你翻牌前那么凶，现在怂什么？这牌面这么干，你没中，老王大概率也没中。你一示弱，底池就白送他了！"},
+            {"action": "下注 1/3 底池 (C-Bet)", "is_correct": true, "hp_change": 20, "sharky_emotion": "cool", "sharky_feedback": "漂亮！这就叫【持续下注】。你翻牌前是带头大哥，翻牌后只要牌面不危险，闭着眼睛也要打一枪，直接把他的烂牌打飞！"}
+          ]
+        },
+        {
+          "level_id": 302,
+          "title": "高级魔法：半诈唬",
+          "scenario": "转牌圈。你手里是两张红桃，桌上两张红桃。虽然你现在只是个高牌，但差一张就能成同花。此时大家都过牌，轮到你了。",
+          "hand": ["Qh", "Jh"],
+          "board": ["2h", "8c", "5h", "Ks"],
+          "options": [
+            {"action": "下大注 (Bet) 夺取主动权", "is_correct": true, "hp_change": 25, "sharky_emotion": "laugh", "sharky_feedback": "高级操作！这叫【半诈唬】。就算现在被抓了，河牌还有 20% 几率变成同花反杀。既能把人吓跑，又有备胎，赢两次的机会！"},
+            {"action": "过牌 (Check) 免费看下一张", "is_correct": false, "hp_change": -10, "sharky_emotion": "angry", "sharky_feedback": "太被动了！虽然免费看牌很香，但你也失去了直接赢下底池的机会。买牌的人要掌握命运，不能当舔狗！"}
+          ]
+        },
+        {
+          "level_id": 303,
+          "title": "抓鸡大队：识破老王的演技",
+          "scenario": "河牌圈。桌上有三张黑桃，但你没有黑桃，你只有一个顶对（一对 A）。老王一路过牌，河牌突然全押 (All-in)！",
+          "hand": ["Ah", "Qd"],
+          "board": ["As", "7s", "4c", "2s", "9d"],
+          "options": [
+            {"action": "秒 Call (跟注) 抓他！", "is_correct": false, "hp_change": -30, "sharky_emotion": "facepalm", "sharky_feedback": "送命题！老王一路过牌，河牌突然发疯，大概率是刚凑成黑桃同花！拿个破顶对去抓这种鸡，倾家荡产！"},
+            {"action": "弃牌 (Fold) 欣赏他的表演", "is_correct": true, "hp_change": 15, "sharky_emotion": "cool", "sharky_feedback": "顶级纪律！他的故事讲得很圆满，这种时候坚决不当'好奇宝宝'。能扔掉顶对，你已经毕业了！"}
+          ]
+        }
+      ]
+    },
+    {
+      "chapter_info": {
+        "chapter_id": 4,
+        "chapter_name": "第四章：牌桌生存学",
+        "description": "不仅要看牌，还要看人、看筹码。打牌打的是人情世故。",
+        "initial_hp": 100
+      },
+      "levels": [
+        {
+          "level_id": 401,
+          "title": "老实人的愤怒",
+          "scenario": "同桌有个大叔，整整两个小时没玩过一手牌。现在他突然加注，并且在你反加之后，他直接 All-in 全押了！你手里是 JJ。",
+          "hand": ["Js", "Jc"],
+          "board": [],
+          "options": [
+            {"action": "接了！JJ 很大了！", "is_correct": false, "hp_change": -40, "sharky_emotion": "angry", "sharky_feedback": "你撞在钢板上了！【大紧人】两小时不玩，一玩就是命。他手里不是 AA 就是 KK，你的 JJ 过去就是送人头！"},
+            {"action": "弃牌 (Fold) 惹不起躲得起", "is_correct": true, "hp_change": 20, "sharky_emotion": "cool", "sharky_feedback": "人间清醒！记住：当万年不玩牌的老实人突然发飙，无论你手里是什么牌，只要不是 AA，赶紧跑！"}
+          ]
+        },
+        {
+          "level_id": 402,
+          "title": "短码的尊严",
+          "scenario": "你的筹码快输光了，只剩下 10 个大盲注（极短码）。发牌给你发了 A-10。",
+          "hand": ["Ah", "10c"],
+          "board": [],
+          "options": [
+            {"action": "平跟 (Call) 慢慢打", "is_correct": false, "hp_change": -20, "sharky_emotion": "facepalm", "sharky_feedback": "都要饿死了还慢慢吃？筹码越少，越没有资格看翻牌。平跟进去一旦没中，你连挣扎的筹码都没了！"},
+            {"action": "直接全押 (All-in)", "is_correct": true, "hp_change": 25, "sharky_emotion": "laugh", "sharky_feedback": "这就是短码的浪漫！筹码少于 15 个大盲时，拿到好牌直接推，不给他们操作空间。生死看淡，不服就干！"}
+          ]
+        },
+        {
+          "level_id": 403,
+          "title": "终极抉择：泡沫期的噩梦",
+          "scenario": "锦标赛马上就要进圈拿奖金了（泡沫期）。你是中等筹码，你手里是 AK。全场筹码最多的土豪，无脑把你 All-in 了，逼你做决定。",
+          "hand": ["Ad", "Ks"],
+          "board": [],
+          "options": [
+            {"action": "死磕到底 (Call) 我是 AK！", "is_correct": false, "hp_change": -50, "sharky_emotion": "angry", "sharky_feedback": "被土豪拿捏了！马上发奖金了，土豪就是利用你想苟活的心理压榨你。万一输了，你一分钱拿不到！这时候保命比赢牌重要！"},
+            {"action": "忍痛弃牌 (Fold) 苟进奖励圈", "is_correct": true, "hp_change": 30, "sharky_emotion": "cool", "sharky_feedback": "大局观拉满！这叫【ICM 压力】。在这种关键节点，哪怕你是 AK，面对筹码王的碾压也要学会认怂，先拿保底奖金再说！"}
+          ]
+        }
+      ]
+    }
+  ]
+}

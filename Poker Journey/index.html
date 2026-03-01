@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>德州进化论：迷雾新手村</title>
+  <!-- Tailwind CSS CDN（Class 模式手动切换暗黑） -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <!-- 轻量级撒花库（答对时视觉反馈） -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- 战绩截图：html2canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <!-- Animate.css：冲印仪式感 + 教练点评 + HP 扣血动效 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <!-- 首页卡片字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@500&display=swap" rel="stylesheet">
+  <style>
+    /* 全局：无衬线字体；背景/文字由 Tailwind 明亮·暗黑类控制 */
+    body {
+      font-family: ui-sans-serif, system-ui, sans-serif, "PingFang SC", "Microsoft YaHei", sans-serif;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 磨砂玻璃按钮 */
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .btn-glass:active {
+      transform: scale(0.97);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* 绿色按钮：渐变 + 圆角 30px（Green） */
+    .btn-green-global {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, #ACFDB7 0%, #80C785 100%) !important;
+      border-radius: 30px;
+      border-color: #5a9a5f;
+      color: #14532d !important;
+    }
+    .btn-green-global:hover { filter: brightness(1.06); }
+    .btn-green-global:active { filter: brightness(0.94); }
+
+    /* 默认按钮：白/灰渐变 + 圆角 30px */
+    .btn-default-white {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, #FAFAFA 0%, #D1D1D1 100%) !important;
+      border-radius: 30px;
+      border-color: #b0b0b0;
+      color: #374151 !important;
+    }
+    .btn-default-white:hover { filter: brightness(1.06); }
+    .btn-default-white:active { filter: brightness(0.94); }
+
+    /* 蓝色按钮：渐变 + 圆角 30px */
+    .btn-blue-global {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, #A9E0FF 0%, #56C1FF 100%) !important;
+      border-radius: 30px;
+      border-color: #3ba3e0;
+      color: #0c4a6e !important;
+    }
+    .btn-blue-global:hover { filter: brightness(1.06); }
+    .btn-blue-global:active { filter: brightness(0.94); }
+
+    /* 红色按钮：渐变 + 圆角 30px */
+    .btn-red-global {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, #FFBAB2 0%, #FF8882 100%) !important;
+      border-radius: 30px;
+      border-color: #e85c54;
+      color: #7f1d1d !important;
+    }
+    .btn-red-global:hover { filter: brightness(1.06); }
+    .btn-red-global:active { filter: brightness(0.94); }
+
+    /* 屏幕闪绿光（答对） */
+    .flash-green {
+      animation: flashGreen 0.4s ease-out;
+    }
+    @keyframes flashGreen {
+      0%, 100% { background-color: transparent; }
+      50% { background-color: rgba(34, 197, 94, 0.25); }
+    }
+
+    /* 屏幕闪红光 + 震动（答错） */
+    .flash-red {
+      animation: flashRed 0.5s ease-out;
+    }
+    @keyframes flashRed {
+      0%, 100% { background-color: transparent; }
+      40% { background-color: rgba(239, 68, 68, 0.3); }
+    }
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    /* 答错：短促高频水平震动（打击感） */
+    .shake-screen {
+      animation: shakeScreen 0.5s ease-in-out;
+    }
+    @keyframes shakeScreen {
+      0%, 100% { transform: translateX(0); }
+      10% { transform: translateX(-6px); }
+      20% { transform: translateX(6px); }
+      30% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+    }
+
+    /* HP 心形：失去时为灰 + 半透明 */
+    .hp-heart.hp-lost {
+      color: #94a3b8 !important;
+      opacity: 0.3;
+      transform: scale(0.92);
+    }
+    .dark .hp-heart.hp-lost {
+      color: #64748b !important;
+    }
+    /* 扣血时心碎震动 */
+    .heart-shake {
+      animation: heartShake 0.45s ease-in-out;
+    }
+    @keyframes heartShake {
+      0%, 100% { transform: translateX(0) scale(1); }
+      20% { transform: translateX(-4px) scale(1.1); }
+      40% { transform: translateX(4px) scale(0.95); }
+      60% { transform: translateX(-3px) scale(1.02); }
+      80% { transform: translateX(2px) scale(0.98); }
+    }
+    /* 最后一颗心闪烁警告 */
+    .heart-blink {
+      animation: heartBlink 1s ease-in-out infinite;
+    }
+    @keyframes heartBlink {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.8)); }
+      50% { opacity: 0.85; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 1)); }
+    }
+
+    /* Sharky 弹窗：弹性放大入场 */
+    .boing-in {
+      animation: boingIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes boingIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      55% { transform: scale(1.08); opacity: 1; }
+      75% { transform: scale(0.95); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* HP 进度条伸缩过渡 */
+    #hp-bar-inner {
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Sharky 弹窗遮罩 */
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+    }
+
+    /* 情绪占位头像块 */
+    .emotion-block {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.9);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* 通关海报占位（渐变与边框由 Tailwind 类控制） */
+    .victory-poster {
+      border-radius: 16px;
+    }
+
+    /* 黑话名词高亮：荧光蓝 + 加粗发光 */
+    .term-highlight {
+      color: #60a5fa;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(96, 165, 250, 0.5);
+    }
+
+    /* 无牌时场景文字居中、放大视觉权重 */
+    .scenario-no-cards {
+      text-align: center;
+      max-width: 28rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #game-screen { display: none; }
+    #game-screen.game-screen-visible { display: block; }
+    .landing-btn-card {
+      width: 100%;
+      max-width: 20rem;
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .landing-btn-card { border: 1px solid rgba(203,213,225,0.8); background: rgba(248,250,252,0.95); color: #1e293b; }
+    .dark .landing-btn-card { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); color: #f3f4f6; }
+    .landing-btn-card:hover { background: rgba(226,232,240,0.98); }
+    .dark .landing-btn-card:hover { background: rgba(255,255,255,0.12); }
+    .landing-btn-card:active { transform: scale(0.98); }
+    .landing-btn-card .landing-btn-title { font-weight: 700; margin-bottom: 0.25rem; text-align: center; }
+    .landing-btn-card .landing-btn-desc { font-size: 0.8125rem; color: #64748b; text-align: center; }
+    .dark .landing-btn-card .landing-btn-desc { color: #9ca3af; }
+
+    /* 首页选项卡片样式（缩小约 25% + 背景留白多 + 悬浮保持默认字体色） */
+    .landing-cards {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(18px, 3.8vw, 22px);
+      width: 100%;
+      max-width: min(360px, 69vw);
+    }
+    .landing-cards .card.red {
+      background: linear-gradient(180deg, #FFBAB2 0%, #FF8882 100%);
+      border-radius: 22px;
+      color: #762215;
+    }
+    .landing-cards .card.red p.tip,
+    .landing-cards .card.red p.second-text { color: #762215; }
+    .landing-cards .card.red:hover,
+    .landing-cards .card.red:hover p.tip,
+    .landing-cards .card.red:hover p.second-text { color: #762215; }
+    .landing-cards .card.blue {
+      background: linear-gradient(180deg, #A9E0FF 0%, #56C1FF 100%);
+      border-radius: 22px;
+      color: #0E4F7A;
+    }
+    .landing-cards .card.blue p.tip,
+    .landing-cards .card.blue p.second-text { color: #0E4F7A; }
+    .landing-cards .card.blue:hover,
+    .landing-cards .card.blue:hover p.tip,
+    .landing-cards .card.blue:hover p.second-text { color: #0E4F7A; }
+    .landing-cards .card.green {
+      background: linear-gradient(180deg, #ACFDB7 0%, #80C785 100%);
+      border-radius: 22px;
+      color: #003601;
+    }
+    .landing-cards .card.green p.tip,
+    .landing-cards .card.green p.second-text { color: #003601; }
+    .landing-cards .card.green:hover,
+    .landing-cards .card.green:hover p.tip,
+    .landing-cards .card.green:hover p.second-text { color: #003601; }
+    .landing-cards .card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      text-align: center;
+      min-height: clamp(63px, 10.5vw, 128px);
+      width: 100%;
+      border-radius: 22px;
+      cursor: pointer;
+      transition: 400ms transform, 400ms box-shadow, 400ms background-color;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      border: none;
+      padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 3vw, 1.125rem);
+      font-family: 'IBM Plex Sans Hebrew', sans-serif;
+      font-style: normal;
+      font-weight: 500;
+      font-size: clamp(0.75rem, 3vw, 24px);
+      line-height: 1.3125;
+      letter-spacing: 0.01em;
+    }
+    .landing-cards .card p.tip {
+      font-size: inherit;
+      font-weight: 500;
+      margin: 0 0 0.15rem 0;
+      line-height: 1.3125;
+      color: inherit;
+    }
+    .landing-cards .card p.second-text {
+      font-size: 0.75em;
+      font-weight: 500;
+      margin: 0;
+      opacity: 0.95;
+      line-height: 1.3125;
+      color: inherit;
+    }
+    .landing-cards .card:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 16px rgba(0, 0, 0, 0.4);
+      background-color: #242A38;
+    }
+    .landing-cards:hover > .card:not(:hover) {
+      filter: blur(10px);
+      transform: scale(0.9);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+    }
+    #options-container button { min-height: 44px; }
+    .toast-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 60;
+      padding: 0.75rem 1rem;
+      background: rgba(30, 41, 59, 0.98);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      font-size: 0.875rem;
+      color: #fbbf24;
+      animation: toastIn 0.25s ease-out;
+    }
+    .dark .toast-bar { background: rgba(17, 24, 39, 0.95); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-100%); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 最终结算页：全屏由 Tailwind 控制；平滑退出过渡；底部按钮区始终在视口内 */
+    #result-page { display: none; opacity: 0; transition: opacity 0.3s ease; }
+    #result-page.result-visible { display: flex; opacity: 1; height: 100dvh; min-height: 100dvh; }
+    #result-page.result-exiting { opacity: 0; }
+    #result-page .result-page-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #result-page .result-page-actions { flex: 0 0 auto; position: relative; z-index: 10; }
+    #result-badge-img[src]:not([src=""]) { display: block !important; }
+    .result-score {
+      line-height: 1;
+      text-shadow: 0 0 24px currentColor;
+    }
+    .result-score.tier-s { color: #60a5fa; text-shadow: 0 0 24px rgba(96, 165, 250, 0.6); }
+    .result-score.tier-a { color: #34d399; text-shadow: 0 0 24px rgba(52, 211, 153, 0.5); }
+    .result-score.tier-b { color: #f87171; text-shadow: 0 0 24px rgba(248, 113, 113, 0.5); }
+    .result-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .result-comment { font-size: 0.875rem; text-align: center; max-width: 20rem; line-height: 1.5; margin-bottom: 2rem; color: #475569; }
+    .dark .result-comment { color: #9ca3af; }
+
+    /* 分享战绩按钮：3D 风格 + 相机图标 */
+    .btn-result-capture {
+      border-bottom: 4px solid rgba(59, 130, 246, 0.8);
+      transition: transform 0.15s, border-bottom-width 0.15s, filter 0.15s;
+    }
+    .btn-result-capture:hover { transform: translateY(-2px); border-bottom-width: 6px; filter: brightness(1.08); }
+    .btn-result-capture:active { transform: translateY(1px); border-bottom-width: 2px; filter: brightness(0.95); }
+
+    /* 战绩截图预览浮层 */
+    #screenshot-preview-modal { display: none; }
+    #screenshot-preview-modal.preview-visible { display: flex; }
+
+    /* 竖版牌桌：椭圆形桌面（背景/边框由 Tailwind 明亮·暗黑类控制） */
+    .poker-table {
+      border-radius: 3rem;
+      min-height: clamp(280px, 50vh, 420px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-skeleton-sm {
+      width: 40px;
+      height: 56px;
+      font-size: 10px;
+      border-radius: 6px;
+    }
+    /* 解说弹窗：全局居中大卡片（背景由 Tailwind bg-white dark:bg-slate-800 控制） */
+    .explanation-sheet {
+      max-height: min(85vh, 560px);
+      overflow-y: auto;
+      border-radius: 1.5rem;
+      width: 100%;
+    }
+    .explanation-sheet .card-skeleton { background: linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 100%); color: #475569; }
+    .explanation-sheet .card-skeleton.red { color: #b91c1c; }
+    @media (min-width: 640px) {
+      .explanation-sheet { max-width: 28rem; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-gray-100 overflow-x-hidden min-h-[100dvh] min-h-screen">
+  <!-- ========== 开屏欢迎页（全屏、静态、垂直居中） ========== -->
+  <div id="landing-page" class="fixed inset-0 z-[60] min-h-[100dvh] overflow-hidden flex items-center justify-center">
+    <div class="absolute inset-0 bg-slate-50 dark:bg-gray-900" role="presentation"></div>
+    <div class="relative max-w-lg w-full mx-auto flex flex-col items-center justify-center text-center p-8 sm:p-12 md:p-16">
+      <div class="w-full px-4 mb-8 sm:mb-12">
+        <h1 class="text-4xl sm:text-5xl font-black text-slate-900 dark:text-gray-100 mb-2">德州进化论</h1>
+        <p class="text-base sm:text-lg text-slate-500 dark:text-gray-400">别人学三年，你玩三局</p>
+      </div>
+      <div class="landing-cards cards w-full flex flex-col items-center">
+        <button type="button" id="landing-btn-a" class="card red">
+          <p class="tip">【纯白纸萌新】</p>
+          <p class="second-text">德扑是啥？请对我温柔点。</p>
+        </button>
+        <button type="button" id="landing-btn-b" class="card blue">
+          <p class="tip">【野生局票友】</p>
+          <p class="second-text">懂规则，但老被朋友忽悠。</p>
+        </button>
+        <button type="button" id="landing-btn-c" class="card green">
+          <p class="tip">【资深懂哥】</p>
+          <p class="second-text">别废话，我全懂，就是运气差。</p>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 关卡介绍弹窗（开始答题前显示，点击「我准备好了」后进入第一题） ========== -->
+  <div id="chapter-intro-modal" class="fixed inset-0 z-[65] hidden items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-600 max-w-lg w-full mx-4 p-6 sm:p-8 shadow-2xl">
+      <h2 id="chapter-intro-title" class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4">关卡介绍</h2>
+      <p id="chapter-intro-text" class="text-slate-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed mb-6"></p>
+      <button type="button" id="btn-intro-ready" class="w-full py-3 px-4 rounded-xl bg-amber-500/90 text-gray-900 font-medium hover:bg-amber-400/90 transition-colors">
+        我准备好了
+      </button>
+    </div>
+  </div>
+
+  <!-- 答题界面容器：初始隐藏，点击 A/B/C 后显示 -->
+  <div id="game-screen">
+  <!-- 闪屏层：用于答对/答错的全屏闪色 -->
+  <div id="flash-layer" class="fixed inset-0 pointer-events-none z-50"></div>
+
+  <!-- ========== 顶部区域（含主题切换） ========== -->
+  <header class="sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 border-b border-slate-200 dark:border-gray-700/50 px-3 sm:px-4 py-2 sm:py-3 safe-area-inset">
+    <div class="flex flex-col gap-1 max-w-2xl mx-auto w-full">
+      <p id="chapter-name" class="text-xs text-slate-500 dark:text-gray-400 truncate"></p>
+      <div class="flex items-center justify-between gap-2 sm:gap-3">
+        <h1 id="level-title" class="text-xs sm:text-sm font-medium truncate flex-1 min-w-0 text-slate-900 dark:text-gray-100"></h1>
+        <div id="hp-container" class="flex items-center gap-2 flex-wrap flex-1 min-w-0">
+          <div class="flex items-center gap-2" aria-label="生命值">
+            <span id="hp-heart-1" class="hp-heart text-red-500 dark:text-red-400 text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
+            <span id="hp-heart-2" class="hp-heart text-red-500 dark:text-red-400 text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
+          </div>
+          <p id="hp-warning" class="text-xs text-red-500 dark:text-red-400 font-medium hidden">小心，再错一次就要回上一关了！</p>
+          <div class="flex-1 min-w-[72px] flex flex-col gap-0.5">
+            <span id="progress-label" class="text-xs text-slate-500 dark:text-gray-400">进度: 0/6</span>
+            <div class="w-full h-2 bg-slate-700 dark:bg-slate-600 rounded-full overflow-hidden">
+              <div id="progress-bar-inner" class="h-full bg-green-500 dark:bg-green-600 rounded-full transition-[width] duration-300" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center flex-shrink-0">
+          <button type="button" id="theme-toggle" class="p-1.5 rounded-lg border border-slate-300 dark:border-gray-600 bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-gray-700 transition-colors" aria-label="切换主题">
+            <span id="theme-icon" class="text-lg leading-none">🌙</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== 核心内容区：竖版牌桌布局 ========== -->
+  <main class="max-w-2xl mx-auto w-full px-3 sm:px-4 py-3 sm:py-4 pb-32 sm:pb-36">
+    <div id="poker-table" class="poker-table p-3 sm:p-4 mb-3 sm:mb-4 bg-gradient-to-b from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-800 border-4 border-slate-400 dark:border-slate-500">
+      <div id="scenario-zone" class="text-center py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl bg-slate-100 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600/50">
+        <p id="scenario" class="text-slate-700 dark:text-gray-200 text-xs sm:text-sm leading-relaxed"></p>
+      </div>
+      <div id="board-zone" class="flex flex-col items-center justify-center py-3 sm:py-4 min-h-[4rem] sm:min-h-[5rem]">
+        <div id="board-container" class="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center"></div>
+      </div>
+      <div id="hand-zone" class="flex flex-col items-center justify-center py-2.5 sm:py-3">
+        <span class="text-xs text-slate-500 dark:text-slate-400 mb-1">你的手牌</span>
+        <div id="hand-container" class="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center"></div>
+      </div>
+    </div>
+    <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+  </main>
+
+  <!-- ========== 解说弹窗：毒舌教练气泡 + 动态标题 + Sharky 头像 ========== -->
+  <div id="sharky-modal" class="fixed inset-0 z-40 hidden items-center justify-center p-4 modal-backdrop overflow-y-auto">
+    <div id="explanation-sheet" class="explanation-sheet max-w-lg w-full max-h-[90vh] my-4 p-4 sm:p-6 shadow-2xl flex flex-col gap-3 sm:gap-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-2xl overflow-y-auto">
+      <h2 id="explanation-title" class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-600 pb-2 flex-shrink-0">解说</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">战局重现</p>
+      <div id="explanation-cards" class="flex flex-wrap justify-center gap-2 py-2 flex-shrink-0"></div>
+      <p id="explanation-choice" class="text-sm font-medium py-1 flex-shrink-0"></p>
+      <!-- 胜率条 UI -->
+      <div class="equity-bar-wrap pt-2 flex-shrink-0">
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-1.5">胜率 (Equity)</p>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-600 dark:text-slate-400 w-10">80%</span>
+          <div class="flex-1 h-3 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden flex">
+            <div class="h-full bg-emerald-500 rounded-l-full transition-all" style="width: 80%;"></div>
+            <div class="h-full bg-slate-400 rounded-r-full flex-1"></div>
+          </div>
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 w-10">20%</span>
+        </div>
+      </div>
+      <!-- 教练区：Sharky 头像 + 气泡框解说 -->
+      <div class="flex gap-3 items-start pt-2 border-t border-slate-200 dark:border-slate-600 flex-shrink-0 min-h-0">
+        <div id="sharky-avatar-wrap" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 animate-bounce" style="animation-duration: 2s;">
+          <svg class="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="32" cy="36" rx="20" ry="18" fill="#94a3b8" class="dark:fill-slate-500"/>
+            <path d="M12 36 L12 28 Q12 20 20 22 L24 24 L28 22 Q36 18 44 22 L48 24 L52 22 Q60 20 60 28 L60 36 Z" fill="#64748b" class="dark:fill-slate-600"/>
+            <circle cx="26" cy="32" r="3" fill="#1e293b"/>
+            <circle cx="38" cy="32" r="3" fill="#1e293b"/>
+            <path d="M28 42 Q32 46 36 42" stroke="#475569" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M52 32 L60 28 L60 36 L52 32" fill="#64748b" class="dark:fill-slate-600"/>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0 rounded-2xl bg-slate-100 dark:bg-slate-800 p-4 relative">
+          <p id="sharky-feedback" class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed"></p>
+        </div>
+      </div>
+      <button id="btn-next-level" class="w-full py-4 rounded-xl bg-amber-500 text-slate-900 font-semibold hover:bg-amber-400 transition-colors mt-2 flex-shrink-0">
+        继续
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== 本章完成祝贺弹窗 ========== -->
+  <div id="chapter-done-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white dark:bg-gray-800/95 rounded-2xl border border-slate-200 dark:border-gray-600/50 max-w-sm w-full mx-4 p-6 sm:p-8 text-center shadow-2xl">
+      <p id="chapter-done-message" class="text-lg font-bold text-amber-500 dark:text-amber-400 mb-6">恭喜完成新手训练！</p>
+      <button id="btn-next-chapter" class="w-full py-3 px-4 rounded-xl bg-amber-500/90 text-gray-900 font-medium hover:bg-amber-400/90 transition-colors">
+        进入下一章
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== Game Over 弹窗 ========== -->
+  <div id="gameover-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-600 max-w-sm w-full mx-4 p-6 sm:p-8 text-center shadow-2xl">
+      <p class="text-2xl font-bold text-red-500 dark:text-red-400 mb-2">Game Over</p>
+      <p id="gameover-message" class="text-slate-600 dark:text-gray-400 text-sm mb-6">HP 已归零，再来一次吧！</p>
+      <button id="btn-restart" class="w-full py-3 px-4 rounded-xl bg-gray-600 text-white font-medium hover:bg-gray-500 transition-colors">
+        重新挑战
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== 通关弹窗 ========== -->
+  <div id="victory-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+    <div class="victory-poster max-w-sm w-full mx-4 p-6 sm:p-8 text-center shadow-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-300 dark:border-white/20">
+      <p class="text-xl font-bold text-amber-500 dark:text-amber-400 mb-2">恭喜通关</p>
+      <p class="text-slate-600 dark:text-gray-400 text-sm mb-6">迷雾新手村 · 通关占位图</p>
+      <button id="btn-victory-restart" class="w-full py-3 px-4 rounded-xl bg-amber-500/90 text-gray-900 font-medium hover:bg-amber-400 transition-colors">
+        再玩一次
+      </button>
+    </div>
+  </div>
+
+  <!-- 答题界面容器结束 -->
+  </div>
+
+  <!-- ========== 最终结算页（可滚动，确保底部「分享战绩」按钮可见；点击该按钮才截图） ========== -->
+  <div id="result-page" class="fixed inset-0 z-[70] min-h-[100dvh] overflow-hidden flex flex-col relative text-slate-100">
+    <!-- 背景层：预留背景图用 bg-cover bg-center bg-no-repeat，无图时渐变后备 -->
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-800 to-slate-950 dark:from-slate-900 dark:to-black bg-cover bg-center bg-no-repeat" role="presentation"></div>
+    <!-- 前景内容：上部分可滚动 -->
+    <div class="result-page-content relative flex flex-col flex-1 min-h-0 items-center text-center px-4 pt-6 sm:pt-8">
+      <img id="result-badge-img" src="" alt="" class="w-1/2 max-w-[12rem] object-contain mx-auto mt-8 hidden" />
+      <p id="result-score-label" class="text-sm text-slate-400 mt-6 mb-1">得分</p>
+      <p id="result-score" class="result-score text-7xl sm:text-8xl font-black tracking-tighter">0</p>
+      <p id="result-chapter-summary" class="text-slate-300 dark:text-slate-400 text-base sm:text-lg mt-2"></p>
+      <p id="result-title" class="result-title text-xl sm:text-2xl font-bold mt-2">【慈善赌王】</p>
+      <p id="result-comment" class="result-comment mt-2 max-w-md mx-auto mb-4">你这打法，简直是来牌桌上精准扶贫的！建议重修新手村！</p>
+    </div>
+    <!-- 操作按钮区：再来一遍 + 分享战绩（始终贴底、可见） -->
+    <div class="result-page-actions flex-shrink-0 w-full px-6 max-w-md mx-auto flex flex-col sm:flex-row gap-3 pb-8 pt-4">
+      <button type="button" id="btn-result-retry" class="flex-1 py-3 px-4 rounded-xl bg-gray-600 text-white font-medium hover:bg-gray-500 transition-colors border-b-4 border-gray-700 hover:-translate-y-0.5 active:translate-y-0">
+        再来一遍
+      </button>
+      <button type="button" id="btn-result-share" class="flex-1 py-3 px-4 rounded-xl bg-blue-500 text-white font-bold border-b-4 border-blue-600 btn-result-capture flex items-center justify-center gap-2 shadow-lg">
+        <span class="text-xl" aria-hidden="true">📷</span>
+        <span>分享战绩</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== 战绩截图预览浮层（半透明遮罩 + 图片 + 长按保存提示） ========== -->
+  <!-- Loading 遮罩：点击「分享战绩」后显示，带脉冲图标 -->
+  <div id="screenshot-loading-overlay" class="fixed inset-0 z-[79] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="flex flex-col items-center gap-4">
+      <span id="screenshot-loading-icon" class="text-5xl">📷</span>
+      <p class="text-white/90 text-sm">正在生成战绩图…</p>
+    </div>
+  </div>
+  <div id="screenshot-preview-modal" class="fixed inset-0 z-[80] items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="relative max-w-full max-h-[90vh] flex flex-col items-center gap-4">
+      <img id="screenshot-preview-img" src="" alt="战绩截图" class="max-w-full max-h-[75vh] w-auto h-auto rounded-xl shadow-2xl border-2 border-white/20" />
+      <p class="text-white/95 text-sm sm:text-base text-center px-4">长按图片保存，快去分享你的战绩吧！</p>
+      <button type="button" id="btn-screenshot-close" class="py-2 px-6 rounded-xl bg-white/20 text-white font-medium hover:bg-white/30 transition-colors">
+        关闭
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== 题库（questions-data.js 由 data.json 扁平化生成；若需 questions.js 可重命名并改下方 src） ========== -->
+  <script src="questions-data.js"></script>
+  <script>
+    // ========== 轻量级音效引擎（Base64 内嵌 WAV，支持 file://） ==========
+    // 提醒：目前的音频为程序生成的占位符，后续请替换为高品质的短促 UI 音效素材。
+    (function () {
+      function makeWavDataUri(freq, durationMs, amplitude) {
+        amplitude = amplitude == null ? 1 : amplitude;
+        var sampleRate = 8000;
+        var numSamples = Math.floor((durationMs / 1000) * sampleRate);
+        var buffer = new ArrayBuffer(44 + numSamples);
+        var view = new DataView(buffer);
+        function writeStr(offset, str) { for (var i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); }
+        writeStr(0, 'RIFF');
+        view.setUint32(4, 36 + numSamples, true);
+        writeStr(8, 'WAVE');
+        writeStr(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate, true);
+        view.setUint16(32, 1, true);
+        view.setUint16(34, 8, true);
+        writeStr(36, 'data');
+        view.setUint32(40, numSamples, true);
+        for (var i = 0; i < numSamples; i++) {
+          var t = i / sampleRate;
+          var sample = Math.floor(128 + 127 * amplitude * Math.sin(2 * Math.PI * freq * t));
+          view.setUint8(44 + i, Math.max(0, Math.min(255, sample)));
+        }
+        var bytes = new Uint8Array(buffer);
+        var binary = '';
+        for (var j = 0; j < bytes.length; j++) binary += String.fromCharCode(bytes[j]);
+        return 'data:audio/wav;base64,' + btoa(binary);
+      }
+      // 只保留特殊音效：答错 wrong、结算 victory（无点击音、无答对音）
+      var soundWrong = new Audio(makeWavDataUri(85, 95));   // 低沉「咚」声 Dull Thud
+      soundWrong.volume = 0.7;
+      var soundVictory = new Audio(makeWavDataUri(880, 100));
+      soundVictory.volume = 0.5;
+      var sounds = { wrong: soundWrong, victory: soundVictory };
+      var v2 = makeWavDataUri(1320, 80);
+      soundVictory.addEventListener('ended', function () {
+        var a2 = new Audio(v2);
+        a2.volume = 0.5;
+        a2.currentTime = 0;
+        a2.play().catch(function () {});
+      }, { once: false });
+      window.audioEngine = {
+        play: function (key) {
+          var a = sounds[key];
+          if (!a) return;
+          try {
+            a.currentTime = 0;  // 每次播放前重置，避免被打断时从头叠播；占位符音效后续请替换为高品质短促 UI 素材
+            a.play().catch(function () {});
+          } catch (e) {}
+        }
+      };
+    })();
+
+    // ========== 游戏状态（三段式关卡，每关 6 题） ==========
+    const QUESTIONS_PER_GAME = 6;
+    let currentChapterName = '';      // 当前关卡名，用于结算与标题展示
+    let currentSessionQuestions = [];
+    let currentLevelIndex = 0;
+    let currentHP = 3;
+    let MAX_HP = 2;
+    let hp = 2;
+    let currentDifficulty = 'beginner';
+    var lastSessionQuestionIdsByChapter = {};
+    let chosenOption = null;
+    let modalShowsWrongAnswer = false;
+    let correctCount = 0;
+    let totalQuestions = 0;
+
+    /** Fisher-Yates 洗牌：原地打乱数组，保证每种排列等概率，返回原数组引用 */
+    function shuffle(array) {
+      let i = array.length;
+      let j;
+      let t;
+      while (i !== 0) {
+        j = Math.floor(Math.random() * i);
+        i--;
+        t = array[i];
+        array[i] = array[j];
+        array[j] = t;
+      }
+      return array;
+    }
+
+    function getCurrentLevel() {
+      return currentSessionQuestions[currentLevelIndex] || null;
+    }
+    function getCurrentLevelsCount() {
+      return currentSessionQuestions.length;
+    }
+
+    // DOM 引用
+    const el = {
+      gameScreen: document.getElementById('game-screen'),
+      landingPage: document.getElementById('landing-page'),
+      chapterName: document.getElementById('chapter-name'),
+      levelTitle: document.getElementById('level-title'),
+      hpContainer: document.getElementById('hp-container'),
+      hpHeart1: document.getElementById('hp-heart-1'),
+      hpHeart2: document.getElementById('hp-heart-2'),
+      hpWarning: document.getElementById('hp-warning'),
+      progressLabel: document.getElementById('progress-label'),
+      progressBarInner: document.getElementById('progress-bar-inner'),
+      gameoverMessage: document.getElementById('gameover-message'),
+      scenario: document.getElementById('scenario'),
+      scenarioZone: document.getElementById('scenario-zone'),
+      boardZone: document.getElementById('board-zone'),
+      boardContainer: document.getElementById('board-container'),
+      handZone: document.getElementById('hand-zone'),
+      handContainer: document.getElementById('hand-container'),
+      optionsContainer: document.getElementById('options-container'),
+      flashLayer: document.getElementById('flash-layer'),
+      sharkyModal: document.getElementById('sharky-modal'),
+      explanationSheet: document.getElementById('explanation-sheet'),
+      explanationTitle: document.getElementById('explanation-title'),
+      sharkyFeedback: document.getElementById('sharky-feedback'),
+      sharkyEmotion: document.getElementById('sharky-emotion'),
+      explanationCards: document.getElementById('explanation-cards'),
+      explanationChoice: document.getElementById('explanation-choice'),
+      btnNextLevel: document.getElementById('btn-next-level'),
+      chapterDoneModal: document.getElementById('chapter-done-modal'),
+      chapterDoneMessage: document.getElementById('chapter-done-message'),
+      btnNextChapter: document.getElementById('btn-next-chapter'),
+      gameoverModal: document.getElementById('gameover-modal'),
+      btnRestart: document.getElementById('btn-restart'),
+      victoryModal: document.getElementById('victory-modal'),
+      btnVictoryRestart: document.getElementById('btn-victory-restart'),
+      resultPage: document.getElementById('result-page'),
+      resultScore: document.getElementById('result-score'),
+      resultChapterSummary: document.getElementById('result-chapter-summary'),
+      resultTitle: document.getElementById('result-title'),
+      resultComment: document.getElementById('result-comment'),
+      introModal: document.getElementById('chapter-intro-modal'),
+      introTitle: document.getElementById('chapter-intro-title'),
+      introText: document.getElementById('chapter-intro-text'),
+      btnIntroReady: document.getElementById('btn-intro-ready'),
+    };
+
+    // 黑话名词高亮：【xxx】-> 荧光蓝加粗发光；题目文案适配竖版：左边->上方，右边->下方
+    function highlightTerms(text) {
+      if (!text || typeof text !== 'string') return '';
+      let s = text.replace(/【([^】]+)】/g, '<span class="term-highlight">【$1】</span>');
+      s = s.replace(/左边/g, '上方').replace(/右侧/g, '下方').replace(/右边/g, '下方');
+      return s;
+    }
+
+    // 创建单张牌 DOM：使用 assets/cards 下的真实 SVG 图片（牌码 T = 10，需映射为 10 以匹配文件名）
+    function createCardEl(code, small) {
+      if (!code || code.length < 2) return document.createElement('div');
+      const fileCode = (code.charAt(0) === 'T' || code.charAt(0) === 't') ? '10' + code.slice(1) : code;
+      const img = document.createElement('img');
+      img.src = 'assets/cards/' + fileCode + '.svg';
+      img.alt = code;
+      img.loading = 'lazy';
+      img.className = 'flex-shrink-0 object-contain drop-shadow-md rounded-lg ' +
+        (small ? 'w-10 h-14 sm:w-11 sm:h-[3.85rem]' : 'w-14 h-20 sm:w-16 sm:h-[5.5rem]');
+      return img;
+    }
+
+    // 渲染牌桌：scenario + 公共牌区 + 手牌区（分离 board / hand）
+    function renderTable(level) {
+      const hand = level.hand || [];
+      const board = level.board || [];
+      el.scenario.innerHTML = highlightTerms(level.scenario);
+      el.scenarioZone.classList.toggle('hidden', !(level.scenario && level.scenario.trim()));
+      el.boardContainer.innerHTML = '';
+      board.forEach((code) => el.boardContainer.appendChild(createCardEl(code, false)));
+      el.handZone.classList.toggle('hidden', hand.length === 0);
+      el.handContainer.innerHTML = '';
+      hand.forEach((code) => el.handContainer.appendChild(createCardEl(code, false)));
+    }
+
+    // 渲染当前题目（从 currentSessionQuestions 读取，章节名来自 CHAPTERS）
+    function renderLevel() {
+      const level = getCurrentLevel();
+      if (!level) return;
+
+      const totalInSession = getCurrentLevelsCount();
+      el.chapterName.textContent = currentChapterName || '本局题目';
+      el.levelTitle.textContent = `第 ${currentLevelIndex + 1}/${totalInSession} 题：${level.title}`;
+      renderTable(level);
+
+      el.optionsContainer.innerHTML = '';
+      level.options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const action = (opt.action || '');
+        const base = 'w-full cursor-pointer transition-all text-white px-4 py-3 rounded-xl border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] font-bold text-lg flex items-center justify-center min-h-[44px]';
+        let color = 'btn-default-white';
+        if (/Fold|弃牌|光速弃牌|果断弃牌|忍痛弃牌|惹不起躲得起/.test(action)) color = 'btn-blue-global';
+        else if (/Call|Check|跟注|过牌|平跟/.test(action)) color = 'btn-green-global';
+        else if (/Raise|Bet|All-in|下注|全押|加注|反加|3-Bet|4-Bet|C-Bet/.test(action)) color = 'btn-red-global';
+        btn.className = base + ' ' + color;
+        btn.innerHTML = highlightTerms(opt.action);
+        btn.dataset.correct = opt.is_correct;
+        btn.dataset.hpChange = opt.hp_change;
+        btn.dataset.emotion = opt.sharky_emotion;
+        btn.dataset.feedback = opt.sharky_feedback;
+        btn.dataset.action = opt.action;
+        btn.addEventListener('click', () => onOptionClick(opt, btn));
+        el.optionsContainer.appendChild(btn);
+      });
+      updateProgressBar();
+    }
+
+    // 更新 HP 显示（旧进度条，保留兼容）
+    function updateHP(delta) {
+      currentHP = Math.max(0, Math.min(MAX_HP, currentHP + delta));
+      const pct = (currentHP / MAX_HP) * 100;
+      if (el.progressBarInner) el.progressBarInner.style.width = pct + '%';
+    }
+
+    // 更新心形血条 UI（2 颗心）；lastLostIndex 为刚失去的那颗心的序号 1~2，用于播放心碎震动
+    function updateHPUI(lastLostIndex) {
+      var hearts = [el.hpHeart1, el.hpHeart2];
+      hearts.forEach(function (node, i) {
+        if (!node) return;
+        var idx = i + 1;
+        var isLost = idx > hp;
+        node.classList.toggle('hp-lost', isLost);
+        node.classList.remove('heart-shake', 'heart-blink');
+        if (idx === lastLostIndex) node.classList.add('heart-shake');
+      });
+      if (hp === 1 && el.hpHeart1) {
+        el.hpHeart1.classList.add('heart-blink');
+        if (el.hpWarning) {
+          el.hpWarning.classList.remove('hidden');
+        }
+      } else if (el.hpWarning) {
+        el.hpWarning.classList.add('hidden');
+      }
+      if (lastLostIndex && el.hpContainer) {
+        el.hpContainer.classList.remove('animate__animated', 'animate__shakeX');
+        requestAnimationFrame(function () {
+          el.hpContainer.classList.add('animate__animated', 'animate__shakeX');
+          setTimeout(function () {
+            el.hpContainer.classList.remove('animate__animated', 'animate__shakeX');
+          }, 1000);
+        });
+      }
+    }
+
+    // 更新顶部进度条文案与绿色条宽度（进度: x/6）
+    function updateProgressBar() {
+      const total = getCurrentLevelsCount();
+      const current = currentLevelIndex + 1;
+      if (el.progressLabel) el.progressLabel.textContent = '进度: ' + current + '/' + total;
+      if (el.progressBarInner) el.progressBarInner.style.width = (total ? (current / total) * 100 : 0) + '%';
+    }
+
+    // 全屏闪色 + 震动
+    function playResultEffect(isCorrect) {
+      if (isCorrect) {
+        el.flashLayer.classList.remove('flash-red');
+        el.flashLayer.classList.add('flash-green');
+      } else {
+        document.body.classList.add('shake-screen');
+        el.flashLayer.classList.remove('flash-green');
+        el.flashLayer.classList.add('flash-red');
+      }
+      setTimeout(() => {
+        el.flashLayer.classList.remove('flash-green', 'flash-red');
+        document.body.classList.remove('shake-screen');
+      }, 520);
+    }
+
+    // 毒舌教练动态标题：答对/答错随机一句，不显示「正确/错误」或「解说」
+    function getFeedbackTitle(isCorrect) {
+      var correctTitles = ['算你识相', '运气不错嘛', '有点懂哥的意思了'];
+      var wrongTitles = ['慈善大户', 'Sharky 的零食', '交学费时间'];
+      var arr = isCorrect ? correctTitles : wrongTitles;
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // 展示反馈解说弹窗（动态标题 + 气泡 + Sharky 头像）
+    function showFeedback(option, level) {
+      if (el.explanationTitle) {
+        el.explanationTitle.textContent = getFeedbackTitle(option.is_correct);
+        el.explanationTitle.classList.remove('animate__animated', 'animate__flash');
+        requestAnimationFrame(function () {
+          el.explanationTitle.classList.add('animate__animated', 'animate__flash');
+        });
+      }
+      el.sharkyFeedback.textContent = option.sharky_feedback;
+
+      var avatarWrap = document.getElementById('sharky-avatar-wrap');
+      if (avatarWrap) {
+        avatarWrap.classList.remove('animate__animated', 'animate__bounceIn');
+        requestAnimationFrame(function () {
+          avatarWrap.classList.add('animate__animated', 'animate__bounceIn');
+        });
+      }
+
+      el.explanationCards.innerHTML = '';
+      [...(level.hand || []), ...(level.board || [])].forEach(function (code) {
+        el.explanationCards.appendChild(createCardEl(code, true));
+      });
+      el.explanationChoice.textContent = '';
+      el.explanationChoice.className = 'text-sm font-medium py-1 ';
+      if (option.is_correct) {
+        el.explanationChoice.classList.add('text-green-600');
+        el.explanationChoice.textContent = '你的选择：' + option.action + ' ✅';
+      } else {
+        el.explanationChoice.classList.add('text-red-600');
+        el.explanationChoice.textContent = '你的选择：' + option.action + ' ❌';
+      }
+
+      modalShowsWrongAnswer = !option.is_correct;
+      el.btnNextLevel.textContent = option.is_correct ? '继续' : '重新选择';
+
+      el.explanationSheet.classList.add('boing-in');
+      el.sharkyModal.classList.remove('hidden');
+      el.sharkyModal.classList.add('flex');
+    }
+
+    // 选项点击：计分 + 效果 + 打开解说弹窗（战局重现 + Sharky 毒舌解说）
+    function onOptionClick(option, button) {
+      if (chosenOption !== null) return;
+      chosenOption = option;
+      totalQuestions++;
+      if (option.is_correct) correctCount++;
+
+      if (!option.is_correct) {
+        hp--;
+        updateHPUI(hp + 1);
+        if (hp === 0) {
+          playResultEffect(false);
+          if (window.audioEngine) audioEngine.play('wrong');
+          var rollbackTo = currentDifficulty === 'pro' ? 'casual' : 'beginner';
+          if (el.gameoverMessage) el.gameoverMessage.textContent = '生命耗尽！答错 2 次，回滚回上一关再练练吧。';
+          el.gameoverModal.classList.remove('hidden');
+          el.gameoverModal.classList.add('flex');
+          setTimeout(function () {
+            el.gameoverModal.classList.add('hidden');
+            el.gameoverModal.classList.remove('flex');
+            hp = 2;
+            updateHPUI();
+            startGame(rollbackTo);
+          }, 3200);
+          return;
+        }
+      }
+
+      playResultEffect(option.is_correct);
+      if (window.audioEngine && !option.is_correct) audioEngine.play('wrong');
+      if (option.is_correct && typeof confetti === 'function') {
+        confetti({ origin: { x: 0.5, y: 0.5 }, particleCount: 90, spread: 70 });
+      }
+
+      var level = getCurrentLevel();
+      showFeedback(option, level);
+    }
+
+    // 时间回溯：答错时仅关闭弹窗，留在当前题重新选择（HP 允许为负，仅作评分参考，不 Game Over）
+    function closeModalAndRetry() {
+      el.explanationSheet.classList.remove('boing-in');
+      el.sharkyModal.classList.add('hidden');
+      el.sharkyModal.classList.remove('flex');
+      chosenOption = null;
+    }
+
+    // “进入下一关”：答对时进入下一题；本局 5 题全部做完则进入结算页
+    function goNextLevel() {
+      el.explanationSheet.classList.remove('boing-in');
+      el.sharkyModal.classList.add('hidden');
+      el.sharkyModal.classList.remove('flex');
+      chosenOption = null;
+
+      const totalInSession = getCurrentLevelsCount();
+      currentLevelIndex++;
+
+      if (currentLevelIndex < totalInSession) {
+        hp = 2;
+        updateHPUI();
+        renderLevel();
+        return;
+      }
+      // 萌新 / 野生过关：弹出「进入下一章」，点击后进入下一难度
+      if (currentDifficulty === 'beginner') {
+        if (el.chapterDoneMessage) el.chapterDoneMessage.textContent = '恭喜完成新手训练！点击下方进入下一章～';
+        el.chapterDoneModal.classList.remove('hidden');
+        el.chapterDoneModal.classList.add('flex');
+        if (window.audioEngine) audioEngine.play('victory');
+        return;
+      }
+      if (currentDifficulty === 'casual') {
+        if (el.chapterDoneMessage) el.chapterDoneMessage.textContent = '恭喜过关！点击下方进入懂哥挑战～';
+        el.chapterDoneModal.classList.remove('hidden');
+        el.chapterDoneModal.classList.add('flex');
+        if (window.audioEngine) audioEngine.play('victory');
+        return;
+      }
+      showResultPage(false);
+    }
+
+    // 最终结算页：显示「你在 [当前关卡名] 中的表现为：X分」+ 称号评语
+    function showResultPage(deadByHP) {
+      el.gameScreen.style.display = 'none';
+      el.sharkyModal.classList.add('hidden');
+      el.chapterDoneModal.classList.add('hidden');
+      el.gameoverModal.classList.add('hidden');
+      el.victoryModal.classList.add('hidden');
+
+      const score = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
+      const chapterName = currentChapterName || '本关卡';
+      el.resultScore.textContent = score + ' 分';
+      el.resultChapterSummary.textContent = '你在 ' + chapterName + ' 中的表现为：' + score + ' 分';
+      el.resultScore.classList.remove('tier-s', 'tier-a', 'tier-b');
+      let title = '';
+      let comment = '';
+      let tierClass = 'tier-b';
+      if (score >= 90) {
+        title = '【无情印钞机】';
+        comment = '老王连夜扛着火车跑了，你这逻辑简直像个没有感情的杀手！';
+        tierClass = 'tier-s';
+      } else if (score >= 60) {
+        title = '【合格的鲨鱼苗】';
+        comment = '基本功还算扎实，但在深水区还得多练练，不然容易被大鱼吞了。';
+        tierClass = 'tier-a';
+      } else {
+        title = '【慈善赌王】';
+        comment = '你这打法，简直是来牌桌上精准扶贫的！建议重修新手村！';
+        tierClass = 'tier-b';
+      }
+      el.resultTitle.textContent = title;
+      el.resultTitle.className = 'result-title ' + (score >= 90 ? 'text-amber-400' : score >= 60 ? 'text-green-400' : 'text-red-400');
+      el.resultComment.textContent = comment;
+      el.resultComment.className = 'result-comment ' + (score >= 90 ? 'text-amber-200/90' : score >= 60 ? 'text-green-200/90' : 'text-red-200/90');
+      el.resultScore.classList.add(tierClass);
+      el.resultPage.classList.add('result-visible');
+      if (window.audioEngine) audioEngine.play('victory');
+    }
+
+    // “进入下一章”：萌新→野生票友，野生票友→懂哥
+    function goNextChapter() {
+      el.chapterDoneModal.classList.add('hidden');
+      el.chapterDoneModal.classList.remove('flex');
+      if (currentDifficulty === 'beginner') startGame('casual');
+      else if (currentDifficulty === 'casual') startGame('pro');
+    }
+
+    // 重新开始：返回首页（隐藏结算与答题界面，显示欢迎页）
+    function restart() {
+      el.resultPage.classList.remove('result-visible', 'result-exiting');
+      el.resultPage.style.display = 'none';
+      el.gameScreen.style.display = 'none';
+      el.gameScreen.classList.remove('game-screen-visible');
+      el.gameoverModal.classList.add('hidden');
+      el.gameoverModal.classList.remove('flex');
+      el.victoryModal.classList.add('hidden');
+      el.victoryModal.classList.remove('flex');
+      el.chapterDoneModal.classList.add('hidden');
+      el.chapterDoneModal.classList.remove('flex');
+      el.landingPage.style.display = 'flex';
+    }
+
+    // 重置本局状态（HP、得分、题目缓存），不清理 localStorage，保证下次从全量题库重新 shuffle 抽题
+    function resetGameState() {
+      lastSessionQuestionIdsByChapter = {};
+      hp = 2;
+      correctCount = 0;
+      totalQuestions = 0;
+      currentLevelIndex = 0;
+      chosenOption = null;
+      currentSessionQuestions = [];
+      currentChapterName = '';
+      currentDifficulty = 'beginner';
+      if (el.hpContainer) updateHPUI();
+    }
+
+    // 从结算页平滑返回首页：先淡出再 reset + restart
+    function goBackToStart() {
+      el.resultPage.classList.add('result-exiting');
+      setTimeout(function () {
+        resetGameState();
+        restart();
+      }, 320);
+    }
+
+    el.btnNextLevel.addEventListener('click', function () {
+      if (modalShowsWrongAnswer) closeModalAndRetry();
+      else goNextLevel();
+    });
+    el.btnNextChapter.addEventListener('click', goNextChapter);
+    el.btnRestart.addEventListener('click', restart);
+    el.btnVictoryRestart.addEventListener('click', restart);
+    document.getElementById('btn-result-retry').addEventListener('click', goBackToStart);
+
+    // ---------- 战绩截图：html2canvas 捕获 result-page，弹窗展示图片并提示长按保存 ----------
+    const screenshotModal = document.getElementById('screenshot-preview-modal');
+    const screenshotPreviewImg = document.getElementById('screenshot-preview-img');
+    const screenshotLoadingOverlay = document.getElementById('screenshot-loading-overlay');
+    const screenshotLoadingIcon = document.getElementById('screenshot-loading-icon');
+    const btnScreenshotClose = document.getElementById('btn-screenshot-close');
+
+    function captureResult() {
+      const target = document.getElementById('result-page');
+      if (!target || typeof html2canvas !== 'function') return;
+      if (screenshotLoadingOverlay) {
+        screenshotLoadingOverlay.classList.remove('hidden');
+        screenshotLoadingOverlay.classList.add('flex');
+      }
+      if (screenshotLoadingIcon) {
+        screenshotLoadingIcon.classList.add('animate__animated', 'animate__pulse', 'animate__infinite');
+      }
+      html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight
+      }).then(function (canvas) {
+        if (screenshotLoadingOverlay) {
+          screenshotLoadingOverlay.classList.add('hidden');
+          screenshotLoadingOverlay.classList.remove('flex');
+        }
+        if (screenshotLoadingIcon) {
+          screenshotLoadingIcon.classList.remove('animate__animated', 'animate__pulse', 'animate__infinite');
+        }
+        var dataUrl = canvas.toDataURL('image/png');
+        screenshotPreviewImg.src = dataUrl;
+        screenshotPreviewImg.classList.remove('animate__animated', 'animate__zoomInDown');
+        requestAnimationFrame(function () {
+          screenshotPreviewImg.classList.add('animate__animated', 'animate__zoomInDown');
+        });
+        screenshotModal.classList.add('preview-visible');
+        screenshotModal.classList.add('flex');
+      }).catch(function (err) {
+        console.warn('战绩截图失败', err);
+        if (screenshotLoadingOverlay) {
+          screenshotLoadingOverlay.classList.add('hidden');
+          screenshotLoadingOverlay.classList.remove('flex');
+        }
+        if (screenshotLoadingIcon) {
+          screenshotLoadingIcon.classList.remove('animate__animated', 'animate__pulse', 'animate__infinite');
+        }
+      });
+    }
+
+    function closeScreenshotPreview() {
+      screenshotModal.classList.remove('preview-visible', 'flex');
+      screenshotPreviewImg.removeAttribute('src');
+      screenshotPreviewImg.classList.remove('animate__animated', 'animate__zoomInDown');
+    }
+
+    document.getElementById('btn-result-share').addEventListener('click', captureResult);
+    if (btnScreenshotClose) btnScreenshotClose.addEventListener('click', closeScreenshotPreview);
+    if (screenshotModal) screenshotModal.addEventListener('click', function (e) {
+      if (e.target === screenshotModal) closeScreenshotPreview();
+    });
+
+    // ---------- 欢迎页：固定关卡 + 随机抽题，startGame(difficulty) ----------
+    // 每次点击首页按钮都会：过滤 -> 洗牌 -> 截取 6 题，保证每次进入关卡题目顺序都不同
+    function startGame(difficulty) {
+      const config = typeof CHAPTER_CONFIG !== 'undefined' ? CHAPTER_CONFIG[difficulty] : null;
+      if (!config) return;
+
+      const chapterName = config.name;
+      const all = typeof allQuestions !== 'undefined' ? allQuestions : [];
+
+      // 1. 过滤：筛选出当前难度（chapter）下的所有题目
+      let filteredPool = all.filter((q) => q.chapter === chapterName);
+
+      // 2. 若上一关已玩过（回滚重进），排除上次用过的题，保证本局题目不一样
+      var poolCopy = filteredPool.slice();
+      var lastIds = lastSessionQuestionIdsByChapter[chapterName];
+      if (lastIds && lastIds.length > 0) {
+        var excluded = filteredPool.filter((q) => !lastIds.includes(q.level_id));
+        if (excluded.length >= QUESTIONS_PER_GAME) poolCopy = excluded;
+      }
+
+      // 3. 洗牌并截取前 6 道
+      shuffle(poolCopy);
+      currentSessionQuestions = poolCopy.slice(0, QUESTIONS_PER_GAME);
+      lastSessionQuestionIdsByChapter[chapterName] = currentSessionQuestions.map(function (q) { return q.level_id; });
+
+      // 4. 初始化：当前题下标与游戏状态重置
+      currentChapterName = chapterName;
+      currentLevelIndex = 0;
+      currentDifficulty = difficulty;
+      chosenOption = null;
+      correctCount = 0;
+      totalQuestions = 0;
+      currentHP = 2;
+      MAX_HP = 2;
+      hp = 2;
+      updateHPUI();
+
+      el.landingPage.style.display = 'none';
+      el.gameScreen.classList.add('game-screen-visible');
+      el.gameScreen.style.display = 'block';
+
+      el.introTitle.textContent = '【' + chapterName + '】';
+      el.introText.textContent = config.intro || '';
+      el.introModal.classList.remove('hidden');
+      el.introModal.classList.add('flex');
+
+      if (difficulty === 'pro') {
+        const toast = document.createElement('div');
+        toast.className = 'toast-bar';
+        toast.textContent = '哟，懂哥来了？希望你的逻辑和你的嘴一样硬。';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+      }
+    }
+
+    function closeIntroAndStartFirstQuestion() {
+      el.introModal.classList.add('hidden');
+      el.introModal.classList.remove('flex');
+      requestAnimationFrame(() => {
+        updateHPUI();
+        renderLevel();
+      });
+    }
+
+    el.btnIntroReady.addEventListener('click', closeIntroAndStartFirstQuestion);
+
+    document.getElementById('landing-btn-a').addEventListener('click', () => startGame('beginner'));
+    document.getElementById('landing-btn-b').addEventListener('click', () => startGame('casual'));
+    document.getElementById('landing-btn-c').addEventListener('click', () => startGame('pro'));
+
+    // ---------- 主题切换（Tailwind Class 模式：html.dark = 暗黑，无 dark = 明亮） ----------
+    function updateThemeIcon() {
+      const icon = document.getElementById('theme-icon');
+      if (!icon) return;
+      icon.textContent = document.documentElement.classList.contains('dark') ? '🌙' : '☀️';
+    }
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      document.documentElement.classList.toggle('dark');
+      updateThemeIcon();
+    });
+    updateThemeIcon();
+
+    // 初始状态：只显示欢迎页；点击萌新/票友/懂哥后 startGame('beginner'|'casual'|'pro')，按 chapter 过滤抽 6 题，先出关卡介绍再答题
+  </script>
+</body>
+</html>
