@@ -1,12 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN" class="dark no-tailwind">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>德州进化论：迷雾新手村</title>
-  <!-- Tailwind CSS CDN（Class 模式手动切换暗黑） -->
+  <!-- 离线兜底：Tailwind 未加载时保留基础布局，避免断网界面错乱 -->
+  <style id="offline-fallback">
+    .no-tailwind body { background: #0f172a; color: #e2e8f0; min-height: 100vh; margin: 0; }
+    .no-tailwind #landing-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; box-sizing: border-box; }
+    .no-tailwind .landing-cards { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 360px; }
+    .no-tailwind .landing-cards .card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; border-radius: 22px; cursor: pointer; text-align: center; min-height: 70px; border: none; }
+    .no-tailwind .landing-cards .card.red { background: linear-gradient(180deg, #FFBAB2 0%, #FF8882 100%); color: #762215; }
+    .no-tailwind .landing-cards .card.blue { background: linear-gradient(180deg, #A9E0FF 0%, #56C1FF 100%); color: #0E4F7A; }
+    .no-tailwind .landing-cards .card.green { background: linear-gradient(180deg, #ACFDB7 0%, #80C785 100%); color: #003601; }
+    .no-tailwind #game-screen { max-width: 42rem; margin: 0 auto; padding: 1rem; box-sizing: border-box; }
+    .no-tailwind header { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .no-tailwind main { padding: 1rem; }
+    .no-tailwind #options-container { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .no-tailwind #options-container button { padding: 0.75rem 1rem; border-radius: 12px; border: 2px solid #475569; cursor: pointer; font-size: 1rem; }
+    .no-tailwind #poker-table { padding: 1rem; border-radius: 8px; background: linear-gradient(180deg, #334155 0%, #1e293b 100%); margin-bottom: 1rem; }
+    .no-tailwind #scenario-zone, .no-tailwind #board-zone, .no-tailwind #hand-zone { padding: 0.5rem 0; }
+  </style>
+  <!-- Tailwind CSS CDN（有网时加载，会移除 .no-tailwind 使兜底样式失效） -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
+  <script>if (typeof tailwind !== 'undefined') document.documentElement.classList.remove('no-tailwind');</script>
   <!-- 轻量级撒花库（答对时视觉反馈） -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <!-- 战绩截图：html2canvas -->
@@ -110,6 +128,15 @@
     @keyframes flashRed {
       0%, 100% { background-color: transparent; }
       40% { background-color: rgba(239, 68, 68, 0.3); }
+    }
+    /* 热血状态：连对 5 题时背景微闪（橙/金） */
+    .flash-combo {
+      animation: flashCombo 0.6s ease-out;
+    }
+    @keyframes flashCombo {
+      0%, 100% { background-color: transparent; }
+      30% { background-color: rgba(251, 191, 36, 0.25); }
+      60% { background-color: rgba(249, 115, 22, 0.2); }
     }
     .shake {
       animation: shake 0.5s ease-in-out;
@@ -244,9 +271,10 @@
     .landing-cards {
       display: flex;
       flex-direction: column;
-      gap: clamp(18px, 3.8vw, 22px);
+      gap: clamp(24px, 5vw, 32px);
       width: 100%;
       max-width: min(360px, 69vw);
+      padding: clamp(8px, 2vw, 16px) 0;
     }
     .landing-cards .card.red {
       background: linear-gradient(180deg, #FFBAB2 0%, #FF8882 100%);
@@ -278,6 +306,44 @@
     .landing-cards .card.green:hover,
     .landing-cards .card.green:hover p.tip,
     .landing-cards .card.green:hover p.second-text { color: #003601; }
+    .landing-cards .card.card-with-icon {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(3px, 0.75vw, 5px);
+      text-align: center;
+      min-height: clamp(64px, 14vw, 110px);
+      padding: clamp(0.75rem, 2vw, 1.25rem) clamp(0.9rem, 3vw, 1.35rem);
+    }
+    .landing-cards .card.card-with-icon .landing-card-icon {
+      flex-shrink: 0;
+      width: clamp(13px, 3.4vw, 24px);
+      height: clamp(13px, 3.4vw, 24px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: inherit;
+    }
+    .landing-cards .card.card-with-icon .landing-card-icon svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .landing-cards .card.card-with-icon .landing-card-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1px;
+      flex: 1;
+      min-width: 0;
+      max-width: none;
+      text-align: center;
+    }
+    .landing-cards .card.card-with-icon .landing-card-text .tip,
+    .landing-cards .card.card-with-icon .landing-card-text .second-text {
+      text-align: center;
+    }
     .landing-cards .card {
       display: flex;
       flex-direction: column;
@@ -296,7 +362,7 @@
       font-family: 'IBM Plex Sans Hebrew', sans-serif;
       font-style: normal;
       font-weight: 500;
-      font-size: clamp(0.75rem, 3vw, 24px);
+      font-size: clamp(1rem, 4vw, 24px);
       line-height: 1.3125;
       letter-spacing: 0.01em;
     }
@@ -308,7 +374,7 @@
       color: inherit;
     }
     .landing-cards .card p.second-text {
-      font-size: 0.75em;
+      font-size: clamp(0.8em, 2.5vw, 0.9em);
       font-weight: 500;
       margin: 0;
       opacity: 0.95;
@@ -326,6 +392,37 @@
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
     }
     #options-container button { min-height: 44px; }
+
+    /* 题干：放大约 20%，符合手机阅读 */
+    #scenario {
+      font-size: clamp(0.9375rem, 2.5vw, 1.125rem);
+      line-height: 1.5;
+    }
+
+    /* 手机端全局文本放大，符合阅读习惯 */
+    @media (max-width: 640px) {
+      .landing-cards .card { font-size: 1.0625rem !important; }
+      .landing-cards .card p.second-text { font-size: 0.875rem !important; }
+      #chapter-name { font-size: 0.875rem !important; }
+      #level-title { font-size: 0.9375rem !important; }
+      #hp-warning { font-size: 0.875rem !important; }
+      #progress-label { font-size: 0.875rem !important; }
+      #scenario { font-size: 1rem !important; }
+      #hand-zone > span { font-size: 0.875rem !important; }
+      #explanation-title { font-size: 1.125rem !important; }
+      #explanation-sheet .text-xs { font-size: 0.875rem !important; }
+      #explanation-choice { font-size: 0.9375rem !important; }
+      #sharky-feedback { font-size: 0.9375rem !important; line-height: 1.5; }
+      #options-container button { font-size: 1rem !important; }
+      #chapter-intro-text { font-size: 0.9375rem !important; }
+      #chapter-done-message { font-size: 1.125rem !important; }
+      #gameover-message { font-size: 0.9375rem !important; }
+      #result-score-label { font-size: 0.9375rem !important; }
+      #result-chapter-summary { font-size: 1rem !important; }
+      .result-title { font-size: 1.25rem !important; }
+      .result-comment { font-size: 0.9375rem !important; }
+    }
+
     .toast-bar {
       position: fixed;
       top: 0;
@@ -360,8 +457,14 @@
     .result-score.tier-s { color: #60a5fa; text-shadow: 0 0 24px rgba(96, 165, 250, 0.6); }
     .result-score.tier-a { color: #34d399; text-shadow: 0 0 24px rgba(52, 211, 153, 0.5); }
     .result-score.tier-b { color: #f87171; text-shadow: 0 0 24px rgba(248, 113, 113, 0.5); }
+    #result-dimension-chart { width: 100%; max-width: 20rem; margin: 1rem auto 0; }
+    #result-dimension-chart .dimension-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; font-size: 0.8125rem; }
+    #result-dimension-chart .dimension-label { width: 2.25rem; flex-shrink: 0; color: #94a3b8; font-weight: 600; }
+    #result-dimension-chart .dimension-bar-wrap { flex: 1; height: 0.5rem; background: rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; }
+    #result-dimension-chart .dimension-bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; min-width: 0; }
+    #result-dimension-chart .dimension-pct { width: 2.25rem; flex-shrink: 0; text-align: right; color: #cbd5e1; font-variant-numeric: tabular-nums; }
     .result-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.75rem; }
-    .result-comment { font-size: 0.875rem; text-align: center; max-width: 20rem; line-height: 1.5; margin-bottom: 2rem; color: #475569; }
+    .result-comment { font-size: 0.875rem; text-align: center; max-width: 22rem; line-height: 1.6; margin-bottom: 2rem; color: #475569; white-space: pre-line; }
     .dark .result-comment { color: #9ca3af; }
 
     /* 分享战绩按钮：3D 风格 + 相机图标 */
@@ -417,14 +520,17 @@
         <button type="button" id="landing-btn-a" class="card red">
           <p class="tip">【纯白纸萌新】</p>
           <p class="second-text">德扑是啥？请对我温柔点。</p>
+          <p id="landing-best-a" class="landing-best text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium hidden" aria-hidden="true">Best: 0/15</p>
         </button>
         <button type="button" id="landing-btn-b" class="card blue">
           <p class="tip">【野生局票友】</p>
           <p class="second-text">懂规则，但老被朋友忽悠。</p>
+          <p id="landing-best-b" class="landing-best text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium hidden" aria-hidden="true">Best: 0/15</p>
         </button>
         <button type="button" id="landing-btn-c" class="card green">
           <p class="tip">【资深懂哥】</p>
           <p class="second-text">别废话，我全懂，就是运气差。</p>
+          <p id="landing-best-c" class="landing-best text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium hidden" aria-hidden="true">Best: 0/15</p>
         </button>
       </div>
     </div>
@@ -453,11 +559,14 @@
       <div class="flex items-center justify-between gap-2 sm:gap-3">
         <h1 id="level-title" class="text-xs sm:text-sm font-medium truncate flex-1 min-w-0 text-slate-900 dark:text-gray-100"></h1>
         <div id="hp-container" class="flex items-center gap-2 flex-wrap flex-1 min-w-0">
-          <div class="flex items-center gap-2" aria-label="生命值">
-            <span id="hp-heart-1" class="hp-heart text-red-500 dark:text-red-400 text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
-            <span id="hp-heart-2" class="hp-heart text-red-500 dark:text-red-400 text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
+          <div class="flex items-center gap-1 sm:gap-2" aria-label="生命值">
+            <span id="hp-heart-1" class="hp-heart text-red-500 dark:text-red-400 text-base sm:text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
+            <span id="hp-heart-2" class="hp-heart text-red-500 dark:text-red-400 text-base sm:text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
+            <span id="hp-heart-3" class="hp-heart text-red-500 dark:text-red-400 text-base sm:text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
+            <span id="hp-heart-4" class="hp-heart text-red-500 dark:text-red-400 text-base sm:text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
+            <span id="hp-heart-5" class="hp-heart text-red-500 dark:text-red-400 text-base sm:text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
           </div>
-          <p id="hp-warning" class="text-xs text-red-500 dark:text-red-400 font-medium hidden">小心，再错一次就要回上一关了！</p>
+          <p id="hp-warning" class="text-xs text-red-500 dark:text-red-400 font-medium hidden">小心，再错几次就要回上一关了！</p>
           <div class="flex-1 min-w-[72px] flex flex-col gap-0.5">
             <span id="progress-label" class="text-xs text-slate-500 dark:text-gray-400">进度: 0/6</span>
             <div class="w-full h-2 bg-slate-700 dark:bg-slate-600 rounded-full overflow-hidden">
@@ -577,7 +686,15 @@
       <p id="result-score-label" class="text-sm text-slate-400 mt-6 mb-1">得分</p>
       <p id="result-score" class="result-score text-7xl sm:text-8xl font-black tracking-tighter">0</p>
       <p id="result-chapter-summary" class="text-slate-300 dark:text-slate-400 text-base sm:text-lg mt-2"></p>
-      <p id="result-title" class="result-title text-xl sm:text-2xl font-bold mt-2">【慈善赌王】</p>
+      <p id="result-avg-summary" class="text-slate-400 dark:text-slate-500 text-sm mt-1 min-h-[1.25rem]"></p>
+      <p id="result-time-summary" class="text-slate-500 dark:text-slate-500 text-xs mt-0.5 min-h-[1rem]"></p>
+      <p id="result-combo-summary" class="text-amber-300/90 dark:text-amber-200/90 text-xs mt-0.5 min-h-[1rem]"></p>
+      <div id="result-dimension-chart" class="mt-4 mb-2" aria-label="能力维度得分">
+        <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 text-center">能力维度</p>
+        <div id="result-dimension-bars"></div>
+      </div>
+      <p id="result-title" class="result-title text-xl sm:text-2xl font-bold mt-3">【慈善赌王】</p>
+      <p id="result-weakness" class="result-weakness text-sm text-amber-200/90 max-w-md mx-auto mt-1 mb-2 hidden"></p>
       <p id="result-comment" class="result-comment mt-2 max-w-md mx-auto mb-4">你这打法，简直是来牌桌上精准扶贫的！建议重修新手村！</p>
     </div>
     <!-- 操作按钮区：再来一遍 + 分享战绩（始终贴底、可见） -->
@@ -671,20 +788,34 @@
       };
     })();
 
-    // ========== 游戏状态（三段式关卡，每关 6 题） ==========
-    const QUESTIONS_PER_GAME = 6;
+    // ========== 游戏状态（海量题库：每局 15 题，5 颗心容错） ==========
+    const QUESTIONS_PER_GAME = 15;
+    const DIMENSION_NAMES = ['牌力', '位置', '赔率', '心理', '纪律'];
+    // 题目维度分类：用于结算页能力雷达/条形图与多维度评估（缺省为「牌力」）
+    var LEVEL_CATEGORY = {
+      101: '牌力', 102: '牌力', 103: '牌力', 104: '位置', 105: '位置', 106: '位置', 107: '纪律',
+      1: '纪律', 2: '纪律', 3: '位置', 4: '纪律', 5: '牌力', 6: '牌力', 7: '赔率', 8: '赔率', 9: '纪律', 10: '牌力',
+      11: '位置', 12: '牌力', 13: '赔率', 14: '心理',
+      201: '纪律', 202: '赔率', 203: '赔率', 301: '心理', 302: '心理', 303: '心理',
+      401: '心理', 402: '位置', 403: '心理'
+    };
     let currentChapterName = '';      // 当前关卡名，用于结算与标题展示
     let currentSessionQuestions = [];
     let currentLevelIndex = 0;
-    let currentHP = 3;
-    let MAX_HP = 2;
-    let hp = 2;
+    let currentHP = 5;
+    let MAX_HP = 5;
+    let hp = 5;
     let currentDifficulty = 'beginner';
     var lastSessionQuestionIdsByChapter = {};
     let chosenOption = null;
     let modalShowsWrongAnswer = false;
     let correctCount = 0;
     let totalQuestions = 0;
+    var sessionDimensionStats = {};  // 本局各维度 { 牌力: { correct, total }, ... }
+    var sessionAnswerTimes = [];     // 本局每题答题耗时（毫秒），用于「快」的评估与展示
+    var currentQuestionStartTime = 0; // 当前题开始显示的时间戳（Date.now()）
+    var comboCount = 0;              // 当前连续答对次数
+    var maxComboCount = 0;          // 本局最大连对次数，用于结算「直觉评分」与热血状态
 
     /** Fisher-Yates 洗牌：原地打乱数组，保证每种排列等概率，返回原数组引用 */
     function shuffle(array) {
@@ -717,6 +848,9 @@
       hpContainer: document.getElementById('hp-container'),
       hpHeart1: document.getElementById('hp-heart-1'),
       hpHeart2: document.getElementById('hp-heart-2'),
+      hpHeart3: document.getElementById('hp-heart-3'),
+      hpHeart4: document.getElementById('hp-heart-4'),
+      hpHeart5: document.getElementById('hp-heart-5'),
       hpWarning: document.getElementById('hp-warning'),
       progressLabel: document.getElementById('progress-label'),
       progressBarInner: document.getElementById('progress-bar-inner'),
@@ -747,7 +881,12 @@
       resultPage: document.getElementById('result-page'),
       resultScore: document.getElementById('result-score'),
       resultChapterSummary: document.getElementById('result-chapter-summary'),
+      resultAvgSummary: document.getElementById('result-avg-summary'),
+      resultTimeSummary: document.getElementById('result-time-summary'),
+      resultComboSummary: document.getElementById('result-combo-summary'),
+      resultDimensionBars: document.getElementById('result-dimension-bars'),
       resultTitle: document.getElementById('result-title'),
+      resultWeakness: document.getElementById('result-weakness'),
       resultComment: document.getElementById('result-comment'),
       introModal: document.getElementById('chapter-intro-modal'),
       introTitle: document.getElementById('chapter-intro-title'),
@@ -796,7 +935,8 @@
 
       const totalInSession = getCurrentLevelsCount();
       el.chapterName.textContent = currentChapterName || '本局题目';
-      el.levelTitle.textContent = `第 ${currentLevelIndex + 1}/${totalInSession} 题：${level.title}`;
+      const subTitle = (level.shortTitle != null ? level.shortTitle : level.title).replace(/\s+/g, '').slice(0, 10);
+      el.levelTitle.textContent = `第 ${currentLevelIndex + 1}/${totalInSession} 题：${subTitle}`;
       renderTable(level);
 
       el.optionsContainer.innerHTML = '';
@@ -820,6 +960,7 @@
         el.optionsContainer.appendChild(btn);
       });
       updateProgressBar();
+      currentQuestionStartTime = Date.now();
     }
 
     // 更新 HP 显示（旧进度条，保留兼容）
@@ -829,9 +970,9 @@
       if (el.progressBarInner) el.progressBarInner.style.width = pct + '%';
     }
 
-    // 更新心形血条 UI（2 颗心）；lastLostIndex 为刚失去的那颗心的序号 1~2，用于播放心碎震动
+    // 更新心形血条 UI（5 颗心）；lastLostIndex 为刚失去的那颗心的序号 1~5，用于播放心碎震动
     function updateHPUI(lastLostIndex) {
-      var hearts = [el.hpHeart1, el.hpHeart2];
+      var hearts = [el.hpHeart1, el.hpHeart2, el.hpHeart3, el.hpHeart4, el.hpHeart5];
       hearts.forEach(function (node, i) {
         if (!node) return;
         var idx = i + 1;
@@ -840,11 +981,9 @@
         node.classList.remove('heart-shake', 'heart-blink');
         if (idx === lastLostIndex) node.classList.add('heart-shake');
       });
-      if (hp === 1 && el.hpHeart1) {
+      if (hp <= 2 && el.hpHeart1) {
         el.hpHeart1.classList.add('heart-blink');
-        if (el.hpWarning) {
-          el.hpWarning.classList.remove('hidden');
-        }
+        if (el.hpWarning) el.hpWarning.classList.remove('hidden');
       } else if (el.hpWarning) {
         el.hpWarning.classList.add('hidden');
       }
@@ -932,31 +1071,46 @@
       el.sharkyModal.classList.add('flex');
     }
 
-    // 选项点击：计分 + 效果 + 打开解说弹窗（战局重现 + Sharky 毒舌解说）
+    // 选项点击：计分 + 维度统计 + 效果 + 打开解说弹窗（战局重现 + Sharky 毒舌解说）
     function onOptionClick(option, button) {
       if (chosenOption !== null) return;
       chosenOption = option;
       totalQuestions++;
       if (option.is_correct) correctCount++;
+      var level = getCurrentLevel();
+      var cat = (level && (level.category || LEVEL_CATEGORY[level.level_id])) || '牌力';
+      if (!sessionDimensionStats[cat]) sessionDimensionStats[cat] = { correct: 0, total: 0 };
+      sessionDimensionStats[cat].total++;
+      if (option.is_correct) sessionDimensionStats[cat].correct++;
+      sessionAnswerTimes.push(Date.now() - currentQuestionStartTime);
 
       if (!option.is_correct) {
+        comboCount = 0;
         hp--;
         updateHPUI(hp + 1);
         if (hp === 0) {
           playResultEffect(false);
           if (window.audioEngine) audioEngine.play('wrong');
           var rollbackTo = currentDifficulty === 'pro' ? 'casual' : 'beginner';
-          if (el.gameoverMessage) el.gameoverMessage.textContent = '生命耗尽！答错 2 次，回滚回上一关再练练吧。';
+          if (el.gameoverMessage) el.gameoverMessage.textContent = '生命耗尽！回滚回上一关再练练吧。';
           el.gameoverModal.classList.remove('hidden');
           el.gameoverModal.classList.add('flex');
           setTimeout(function () {
             el.gameoverModal.classList.add('hidden');
             el.gameoverModal.classList.remove('flex');
-            hp = 2;
+            hp = 5;
             updateHPUI();
             startGame(rollbackTo);
           }, 3200);
           return;
+        }
+      } else {
+        comboCount++;
+        if (comboCount > maxComboCount) maxComboCount = comboCount;
+        if (comboCount >= 5 && el.flashLayer) {
+          el.flashLayer.classList.remove('flash-green', 'flash-red');
+          el.flashLayer.classList.add('flash-combo');
+          setTimeout(function () { if (el.flashLayer) el.flashLayer.classList.remove('flash-combo'); }, 650);
         }
       }
 
@@ -966,7 +1120,7 @@
         confetti({ origin: { x: 0.5, y: 0.5 }, particleCount: 90, spread: 70 });
       }
 
-      var level = getCurrentLevel();
+      if (!level) level = getCurrentLevel();
       showFeedback(option, level);
     }
 
@@ -989,7 +1143,7 @@
       currentLevelIndex++;
 
       if (currentLevelIndex < totalInSession) {
-        hp = 2;
+        hp = 5;
         updateHPUI();
         renderLevel();
         return;
@@ -1012,7 +1166,7 @@
       showResultPage(false);
     }
 
-    // 最终结算页：显示「你在 [当前关卡名] 中的表现为：X分」+ 称号评语
+    // 最终结算页：得分 + 五维能力条形图 + Sharky 终极评价（专业工具感）
     function showResultPage(deadByHP) {
       el.gameScreen.style.display = 'none';
       el.sharkyModal.classList.add('hidden');
@@ -1023,35 +1177,137 @@
       const score = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
       const chapterName = currentChapterName || '本关卡';
       el.resultScore.textContent = score + ' 分';
-      el.resultChapterSummary.textContent = '你在 ' + chapterName + ' 中的表现为：' + score + ' 分';
+      el.resultChapterSummary.textContent = '你在 ' + chapterName + ' 中的表现：答对 ' + correctCount + '/' + totalQuestions + ' 题，正确率 ' + score + '%';
+      // 近 3 局平均
+      var storageKey = 'pokerJourney_lastScores';
+      var lastScores = [];
+      try {
+        var raw = localStorage.getItem(storageKey);
+        if (raw) lastScores = JSON.parse(raw);
+      } catch (e) {}
+      lastScores.push(score);
+      lastScores = lastScores.slice(-3);
+      try { localStorage.setItem(storageKey, JSON.stringify(lastScores)); } catch (e) {}
+      if (el.resultAvgSummary) {
+        if (lastScores.length >= 2) {
+          var avg = Math.round(lastScores.reduce(function (a, b) { return a + b; }, 0) / lastScores.length);
+          el.resultAvgSummary.textContent = '近' + lastScores.length + '局平均：' + avg + ' 分（多局平均更接近真实水平）';
+          el.resultAvgSummary.style.display = '';
+        } else {
+          el.resultAvgSummary.textContent = '再玩几局可解锁「近3局平均」，更稳定反映实力';
+          el.resultAvgSummary.style.display = '';
+        }
+      }
+
+      // 答题耗时：本局总用时 + 平均每题用时，用于 90+「快/稳」判定与展示
+      var FAST_AVG_MS = 15 * 1000;
+      var totalTimeMs = sessionAnswerTimes.length ? sessionAnswerTimes.reduce(function (a, b) { return a + b; }, 0) : 0;
+      var avgTimeMs = sessionAnswerTimes.length ? totalTimeMs / sessionAnswerTimes.length : 0;
+      var totalSec = Math.round(totalTimeMs / 1000);
+      var avgSec = avgTimeMs ? Math.round(avgTimeMs / 1000) : 0;
+      var timeStr = totalSec >= 60 ? (Math.floor(totalSec / 60) + '分' + (totalSec % 60) + '秒') : (totalSec + '秒');
+      if (el.resultTimeSummary) {
+        el.resultTimeSummary.textContent = '本局用时 ' + timeStr + ' · 平均 ' + avgSec + '秒/题';
+        el.resultTimeSummary.style.display = totalTimeMs > 0 ? '' : 'none';
+      }
+      var isFast = score >= 90 && avgTimeMs > 0 && avgTimeMs <= FAST_AVG_MS;
+
+      // 五维能力条形图：按 DIMENSION_NAMES 顺序渲染，无答题的维度显示 0%
+      var barColors = ['#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24'];
+      if (el.resultDimensionBars) {
+        el.resultDimensionBars.innerHTML = '';
+        DIMENSION_NAMES.forEach(function (dim, i) {
+          var st = sessionDimensionStats[dim] || { correct: 0, total: 0 };
+          var pct = st.total ? Math.round((st.correct / st.total) * 100) : 0;
+          var row = document.createElement('div');
+          row.className = 'dimension-row';
+          row.innerHTML =
+            '<span class="dimension-label">' + dim + '</span>' +
+            '<div class="dimension-bar-wrap"><div class="dimension-bar-fill" style="width:' + pct + '%;background:' + barColors[i % barColors.length] + '"></div></div>' +
+            '<span class="dimension-pct">' + pct + '%</span>';
+          el.resultDimensionBars.appendChild(row);
+        });
+      }
+
+      var wrongCount = totalQuestions - correctCount;
+      var DIMENSION_DISPLAY_NAMES = { '牌力': '牌力判断', '位置': '位置意识', '赔率': '赔率计算', '心理': '心理博弈', '纪律': '纪律与取舍' };
+      var weaknessDim = '';
+      var maxWrong = 0;
+      DIMENSION_NAMES.forEach(function (d) {
+        var st = sessionDimensionStats[d] || { correct: 0, total: 0 };
+        var w = st.total - st.correct;
+        if (st.total > 0 && w > maxWrong) { maxWrong = w; weaknessDim = DIMENSION_DISPLAY_NAMES[d] || d; }
+      });
+
       el.resultScore.classList.remove('tier-s', 'tier-a', 'tier-b');
-      let title = '';
-      let comment = '';
-      let tierClass = 'tier-b';
-      if (score >= 90) {
-        title = '【无情印钞机】';
-        comment = '老王连夜扛着火车跑了，你这逻辑简直像个没有感情的杀手！';
+      var title = '';
+      var comment = '';
+      var tierClass = 'tier-b';
+      if (correctCount === totalQuestions && totalQuestions === QUESTIONS_PER_GAME) {
+        title = '【顶级掠食者 Apex Predator】';
+        comment = '15 题全对。\n\n' +
+          (maxComboCount >= 5 ? '连对 ' + maxComboCount + ' 题，直觉在线。' : '') +
+          (isFast ? ' 平均 ' + avgSec + ' 秒/题，又快又准。' : '') +
+          ' 牌力、位置、赔率、心理、纪律全开，老王见了你得绕道。';
         tierClass = 'tier-s';
-      } else if (score >= 60) {
-        title = '【合格的鲨鱼苗】';
-        comment = '基本功还算扎实，但在深水区还得多练练，不然容易被大鱼吞了。';
+      } else if (wrongCount >= 1 && wrongCount <= 2 && totalQuestions === QUESTIONS_PER_GAME) {
+        title = '【职业鲨鱼 Pro Shark】';
+        comment = '错 1～2 题，已是高手区间。\n\n' +
+          (maxComboCount >= 5 ? '本局曾连对 ' + maxComboCount + ' 题，直觉评分加持。' : '') +
+          ' 稍补短板即可冲击全对。';
         tierClass = 'tier-a';
       } else {
-        title = '【慈善赌王】';
-        comment = '你这打法，简直是来牌桌上精准扶贫的！建议重修新手村！';
+        title = '【待宰羔羊】';
+        comment = '本局错题较多，建议针对性补强。\n\n' +
+          '多看复盘、重点练弱项，再战不迟。';
         tierClass = 'tier-b';
       }
+      if (el.resultWeakness) {
+        if (weaknessDim && wrongCount >= 3) {
+          el.resultWeakness.textContent = '你在「' + weaknessDim + '」题目中丢分最多。';
+          el.resultWeakness.classList.remove('hidden');
+        } else {
+          el.resultWeakness.classList.add('hidden');
+        }
+      }
+      if (el.resultComboSummary) {
+        if (maxComboCount >= 5) {
+          el.resultComboSummary.textContent = '直觉评分：本局最高连对 ' + maxComboCount + ' 题';
+          el.resultComboSummary.style.display = '';
+        } else {
+          el.resultComboSummary.style.display = 'none';
+        }
+      }
       el.resultTitle.textContent = title;
-      el.resultTitle.className = 'result-title ' + (score >= 90 ? 'text-amber-400' : score >= 60 ? 'text-green-400' : 'text-red-400');
+      el.resultTitle.className = 'result-title ' + (tierClass === 'tier-s' ? 'text-amber-400' : tierClass === 'tier-a' ? 'text-green-400' : 'text-red-400');
       el.resultComment.textContent = comment;
-      el.resultComment.className = 'result-comment ' + (score >= 90 ? 'text-amber-200/90' : score >= 60 ? 'text-green-200/90' : 'text-red-200/90');
+      el.resultComment.className = 'result-comment ' + (tierClass === 'tier-s' ? 'text-amber-200/90' : tierClass === 'tier-a' ? 'text-green-200/90' : 'text-red-200/90');
       el.resultScore.classList.add(tierClass);
+
+      var bestKey = 'pokerJourney_best_' + currentDifficulty;
+      try {
+        var bestRaw = localStorage.getItem(bestKey);
+        var best = bestRaw ? JSON.parse(bestRaw) : { correct: 0, total: QUESTIONS_PER_GAME };
+        if (correctCount > best.correct || (correctCount === best.correct && totalQuestions >= best.total)) {
+          localStorage.setItem(bestKey, JSON.stringify({ correct: correctCount, total: totalQuestions }));
+        }
+      } catch (e) {}
+      el.resultPage.classList.remove('result-exiting');
       el.resultPage.classList.add('result-visible');
+      el.resultPage.style.display = 'flex';
       if (window.audioEngine) audioEngine.play('victory');
     }
 
-    // “进入下一章”：萌新→野生票友，野生票友→懂哥
+    // “进入下一章”：萌新→野生票友，野生票友→懂哥；离开前保存本难度最佳成绩
     function goNextChapter() {
+      var bestKey = 'pokerJourney_best_' + currentDifficulty;
+      try {
+        var bestRaw = localStorage.getItem(bestKey);
+        var best = bestRaw ? JSON.parse(bestRaw) : { correct: 0, total: QUESTIONS_PER_GAME };
+        if (correctCount > best.correct || (correctCount === best.correct && totalQuestions >= best.total)) {
+          localStorage.setItem(bestKey, JSON.stringify({ correct: correctCount, total: totalQuestions }));
+        }
+      } catch (e) {}
       el.chapterDoneModal.classList.add('hidden');
       el.chapterDoneModal.classList.remove('flex');
       if (currentDifficulty === 'beginner') startGame('casual');
@@ -1076,9 +1332,15 @@
     // 重置本局状态（HP、得分、题目缓存），不清理 localStorage，保证下次从全量题库重新 shuffle 抽题
     function resetGameState() {
       lastSessionQuestionIdsByChapter = {};
-      hp = 2;
+      hp = 5;
+      MAX_HP = 5;
       correctCount = 0;
       totalQuestions = 0;
+      sessionDimensionStats = {};
+      DIMENSION_NAMES.forEach(function (d) { sessionDimensionStats[d] = { correct: 0, total: 0 }; });
+      sessionAnswerTimes = [];
+      comboCount = 0;
+      maxComboCount = 0;
       currentLevelIndex = 0;
       chosenOption = null;
       currentSessionQuestions = [];
@@ -1087,12 +1349,13 @@
       if (el.hpContainer) updateHPUI();
     }
 
-    // 从结算页平滑返回首页：先淡出再 reset + restart
+    // 从结算页平滑返回首页：先淡出再 reset + restart，并刷新首页 Best Score
     function goBackToStart() {
       el.resultPage.classList.add('result-exiting');
       setTimeout(function () {
         resetGameState();
         restart();
+        if (typeof updateLandingBestScores === 'function') updateLandingBestScores();
       }, 320);
     }
 
@@ -1182,18 +1445,24 @@
       // 1. 过滤：筛选出当前难度（chapter）下的所有题目
       let filteredPool = all.filter((q) => q.chapter === chapterName);
 
-      // 2. 若上一关已玩过（回滚重进），排除上次用过的题，保证本局题目不一样
+      // 2. 本局该关已用过的题（含多次回滚）：全部排除，优先用新题；用尽后才从全量池抽（允许重复）
       var poolCopy = filteredPool.slice();
-      var lastIds = lastSessionQuestionIdsByChapter[chapterName];
-      if (lastIds && lastIds.length > 0) {
-        var excluded = filteredPool.filter((q) => !lastIds.includes(q.level_id));
+      var usedIds = lastSessionQuestionIdsByChapter[chapterName];
+      if (usedIds && usedIds.length > 0) {
+        var excluded = filteredPool.filter((q) => !usedIds.includes(q.level_id));
         if (excluded.length >= QUESTIONS_PER_GAME) poolCopy = excluded;
       }
 
       // 3. 洗牌并截取前 6 道
       shuffle(poolCopy);
       currentSessionQuestions = poolCopy.slice(0, QUESTIONS_PER_GAME);
-      lastSessionQuestionIdsByChapter[chapterName] = currentSessionQuestions.map(function (q) { return q.level_id; });
+      // 本局该关已用题累积追加（回滚后再进同一关时继续排除这些题，直到没有新题才重复）
+      if (!lastSessionQuestionIdsByChapter[chapterName]) lastSessionQuestionIdsByChapter[chapterName] = [];
+      currentSessionQuestions.forEach(function (q) {
+        if (lastSessionQuestionIdsByChapter[chapterName].indexOf(q.level_id) === -1) {
+          lastSessionQuestionIdsByChapter[chapterName].push(q.level_id);
+        }
+      });
 
       // 4. 初始化：当前题下标与游戏状态重置
       currentChapterName = chapterName;
@@ -1202,9 +1471,14 @@
       chosenOption = null;
       correctCount = 0;
       totalQuestions = 0;
-      currentHP = 2;
-      MAX_HP = 2;
-      hp = 2;
+      sessionDimensionStats = {};
+      DIMENSION_NAMES.forEach(function (d) { sessionDimensionStats[d] = { correct: 0, total: 0 }; });
+      sessionAnswerTimes = [];
+      comboCount = 0;
+      maxComboCount = 0;
+      currentHP = 5;
+      MAX_HP = 5;
+      hp = 5;
       updateHPUI();
 
       el.landingPage.style.display = 'none';
@@ -1236,6 +1510,29 @@
 
     el.btnIntroReady.addEventListener('click', closeIntroAndStartFirstQuestion);
 
+    function updateLandingBestScores() {
+      var keys = { a: 'beginner', b: 'casual', c: 'pro' };
+      ['a', 'b', 'c'].forEach(function (k) {
+        var elBest = document.getElementById('landing-best-' + k);
+        if (!elBest) return;
+        try {
+          var raw = localStorage.getItem('pokerJourney_best_' + keys[k]);
+          var best = raw ? JSON.parse(raw) : null;
+          if (best && best.total && best.correct >= 0) {
+            elBest.textContent = 'Best: ' + best.correct + '/' + best.total;
+            elBest.classList.remove('hidden');
+            elBest.setAttribute('aria-hidden', 'false');
+          } else {
+            elBest.classList.add('hidden');
+            elBest.setAttribute('aria-hidden', 'true');
+          }
+        } catch (e) {
+          elBest.classList.add('hidden');
+          elBest.setAttribute('aria-hidden', 'true');
+        }
+      });
+    }
+    updateLandingBestScores();
     document.getElementById('landing-btn-a').addEventListener('click', () => startGame('beginner'));
     document.getElementById('landing-btn-b').addEventListener('click', () => startGame('casual'));
     document.getElementById('landing-btn-c').addEventListener('click', () => startGame('pro'));
