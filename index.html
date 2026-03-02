@@ -2,7 +2,9 @@
 <html lang="zh-CN" class="dark no-tailwind">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>德州进化论：迷雾新手村</title>
   <!-- 离线兜底：Tailwind 未加载时保留基础布局，避免断网界面错乱 -->
   <style id="offline-fallback">
@@ -21,10 +23,16 @@
     .no-tailwind #poker-table { padding: 1rem; border-radius: 8px; background: linear-gradient(180deg, #334155 0%, #1e293b 100%); margin-bottom: 1rem; }
     .no-tailwind #scenario-zone, .no-tailwind #board-zone, .no-tailwind #hand-zone { padding: 0.5rem 0; }
   </style>
-  <!-- Tailwind CSS CDN（有网时加载，会移除 .no-tailwind 使兜底样式失效） -->
+  <!-- Tailwind CSS CDN（有网时加载，会移除 .no-tailwind 使兜底样式失效；移动端延迟时也尽量移除） -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
-  <script>if (typeof tailwind !== 'undefined') document.documentElement.classList.remove('no-tailwind');</script>
+  <script>
+    (function ensureTailwind() {
+      if (typeof tailwind !== 'undefined') { document.documentElement.classList.remove('no-tailwind'); return; }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureTailwind);
+      else setTimeout(ensureTailwind, 500);
+    })();
+  </script>
   <!-- 轻量级撒花库（答对时视觉反馈） -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <!-- 战绩截图：html2canvas -->
@@ -349,7 +357,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 7px;
+      gap: 5px;
       text-align: center;
       min-height: clamp(63px, 10.5vw, 128px);
       width: 100%;
@@ -363,14 +371,14 @@
       font-style: normal;
       font-weight: 500;
       font-size: clamp(1rem, 4vw, 24px);
-      line-height: 1.3125;
+      line-height: 0.92;
       letter-spacing: 0.01em;
     }
     .landing-cards .card p.tip {
       font-size: inherit;
       font-weight: 500;
-      margin: 0 0 0.15rem 0;
-      line-height: 1.3125;
+      margin: 0 0 0.1rem 0;
+      line-height: 0.92;
       color: inherit;
     }
     .landing-cards .card p.second-text {
@@ -378,8 +386,15 @@
       font-weight: 500;
       margin: 0;
       opacity: 0.95;
-      line-height: 1.3125;
+      line-height: 0.92;
       color: inherit;
+    }
+    .landing-cards .card .landing-best {
+      font-size: 0.75rem;
+      color: #fff;
+      opacity: 0.8;
+      margin-top: 0.15rem;
+      line-height: 1;
     }
     .landing-cards .card:hover {
       transform: scale(1.1);
@@ -443,10 +458,15 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 最终结算页：全屏由 Tailwind 控制；平滑退出过渡；底部按钮区始终在视口内 */
+    /* 最终结算页：全屏；iOS Safari 对 100dvh 有 bug，用 100vh 兜底 */
     #result-page { display: none; opacity: 0; transition: opacity 0.3s ease; }
-    #result-page.result-visible { display: flex; opacity: 1; height: 100dvh; min-height: 100dvh; }
+    #result-page.result-visible { display: flex; opacity: 1; height: 100vh; height: 100dvh; min-height: 100vh; min-height: -webkit-fill-available; min-height: 100dvh; }
     #result-page.result-exiting { opacity: 0; }
+    #result-page { min-height: 100vh; min-height: 100dvh; }
+    #result-page .result-page-actions { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
+    /* 移动端全屏兜底：iOS Safari 对 100dvh 有 bug，用 100vh / -webkit-fill-available */
+    body { min-height: 100vh; min-height: -webkit-fill-available; }
+    #landing-page { min-height: 100vh; min-height: -webkit-fill-available; }
     #result-page .result-page-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     #result-page .result-page-actions { flex: 0 0 auto; position: relative; z-index: 10; }
     #result-badge-img[src]:not([src=""]) { display: block !important; }
@@ -507,9 +527,9 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-gray-100 overflow-x-hidden min-h-[100dvh] min-h-screen">
+<body class="bg-slate-50 dark:bg-gray-900 text-slate-900 dark:text-gray-100 overflow-x-hidden min-h-screen touch-manipulation">
   <!-- ========== 开屏欢迎页（全屏、静态、垂直居中） ========== -->
-  <div id="landing-page" class="fixed inset-0 z-[60] min-h-[100dvh] overflow-hidden flex items-center justify-center">
+  <div id="landing-page" class="fixed inset-0 z-[60] min-h-full overflow-hidden flex items-center justify-center">
     <div class="absolute inset-0 bg-slate-50 dark:bg-gray-900" role="presentation"></div>
     <div class="relative max-w-lg w-full mx-auto flex flex-col items-center justify-center text-center p-8 sm:p-12 md:p-16">
       <div class="w-full px-4 mb-8 sm:mb-12">
@@ -520,17 +540,17 @@
         <button type="button" id="landing-btn-a" class="card red">
           <p class="tip">【纯白纸萌新】</p>
           <p class="second-text">德扑是啥？请对我温柔点。</p>
-          <p id="landing-best-a" class="landing-best text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium hidden" aria-hidden="true">Best: 0/15</p>
+          <p id="landing-best-a" class="landing-best text-xs font-medium hidden" aria-hidden="true">Best: 0/15</p>
         </button>
         <button type="button" id="landing-btn-b" class="card blue">
           <p class="tip">【野生局票友】</p>
           <p class="second-text">懂规则，但老被朋友忽悠。</p>
-          <p id="landing-best-b" class="landing-best text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium hidden" aria-hidden="true">Best: 0/15</p>
+          <p id="landing-best-b" class="landing-best text-xs font-medium hidden" aria-hidden="true">Best: 0/15</p>
         </button>
         <button type="button" id="landing-btn-c" class="card green">
           <p class="tip">【资深懂哥】</p>
           <p class="second-text">别废话，我全懂，就是运气差。</p>
-          <p id="landing-best-c" class="landing-best text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium hidden" aria-hidden="true">Best: 0/15</p>
+          <p id="landing-best-c" class="landing-best text-xs font-medium hidden" aria-hidden="true">Best: 0/15</p>
         </button>
       </div>
     </div>
@@ -677,7 +697,7 @@
   </div>
 
   <!-- ========== 最终结算页（可滚动，确保底部「分享战绩」按钮可见；点击该按钮才截图） ========== -->
-  <div id="result-page" class="fixed inset-0 z-[70] min-h-[100dvh] overflow-hidden flex flex-col relative text-slate-100">
+  <div id="result-page" class="fixed inset-0 z-[70] min-h-screen overflow-hidden flex flex-col relative text-slate-100">
     <!-- 背景层：预留背景图用 bg-cover bg-center bg-no-repeat，无图时渐变后备 -->
     <div class="absolute inset-0 bg-gradient-to-b from-slate-800 to-slate-950 dark:from-slate-900 dark:to-black bg-cover bg-center bg-no-repeat" role="presentation"></div>
     <!-- 前景内容：上部分可滚动 -->
@@ -727,9 +747,16 @@
     </div>
   </div>
 
-  <!-- ========== 题库（questions-data.js 由 data.json 扁平化生成；若需 questions.js 可重命名并改下方 src） ========== -->
+  <!-- ========== 题库（questions-data.js 须与 index.html 同目录部署，否则移动端可能 404） ========== -->
   <script src="questions-data.js"></script>
   <script>
+    window.__QUESTIONS_LOAD_FAILED = (typeof allQuestions === 'undefined' || typeof CHAPTER_CONFIG === 'undefined');
+  </script>
+  <script>
+    if (window.__QUESTIONS_LOAD_FAILED) {
+      document.body.innerHTML = '<div style="padding:2rem;text-align:center;color:#e2e8f0;background:#0f172a;min-height:100vh;min-height:-webkit-fill-available;display:flex;flex-direction:column;align-items:center;justify-content:center;"><p style="font-size:1rem;margin-bottom:1rem;">题库加载失败，请检查网络或刷新。</p><p style="font-size:0.875rem;color:#94a3b8;">若在 GitHub Pages：确保 questions-data.js 与 index.html 在同一目录。</p></div>';
+      throw new Error('questions-data.js 未正确加载');
+    }
     // ========== 轻量级音效引擎（Base64 内嵌 WAV，支持 file://） ==========
     // 提醒：目前的音频为程序生成的占位符，后续请替换为高品质的短促 UI 音效素材。
     (function () {
