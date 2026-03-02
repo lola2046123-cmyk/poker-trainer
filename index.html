@@ -178,6 +178,9 @@
     .dark .hp-heart.hp-lost {
       color: #64748b !important;
     }
+    .level-difficulty-badge.badge-easy { background: #22c55e; color: #fff; }
+    .level-difficulty-badge.badge-medium { background: #f59e0b; color: #1f2937; }
+    .level-difficulty-badge.badge-hard { background: #ef4444; color: #fff; }
     /* 扣血时心碎震动 */
     .heart-shake {
       animation: heartShake 0.45s ease-in-out;
@@ -487,6 +490,53 @@
     .result-comment { font-size: 0.875rem; text-align: center; max-width: 22rem; line-height: 1.6; margin-bottom: 2rem; color: #475569; white-space: pre-line; }
     .dark .result-comment { color: #9ca3af; }
 
+    /* 解说弹窗：9 人桌位置范围示意图（KJo UTG 等起手牌题） */
+    .explanation-position-wrap.explanation-position-visible { display: block !important; }
+    .explanation-position-diagram {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      padding: 8px;
+      background: linear-gradient(145deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+    .dark .explanation-position-diagram { background: linear-gradient(145deg, #334155 0%, #1e293b 100%); border-color: rgba(71, 85, 105, 0.6); }
+    .explanation-position-diagram .seat {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: #cbd5e1;
+      color: #475569;
+    }
+    .dark .explanation-position-diagram .seat { background: #475569; color: #e2e8f0; }
+    .explanation-position-diagram .seat.seat-utg { background: #f59e0b; color: #1f2937; box-shadow: 0 0 0 2px #d97706; }
+    .dark .explanation-position-diagram .seat.seat-utg { background: #d97706; color: #fef3c7; box-shadow: 0 0 0 2px #f59e0b; }
+    .explanation-position-diagram .seat.seat-you { font-size: 0.65rem; color: #b45309; }
+    .dark .explanation-position-diagram .seat.seat-you { color: #fcd34d; }
+
+    /* 9 人桌位置 SVG：呼吸灯效果（基础半透明 → 高亮发光+脉冲） */
+    .explanation-position-diagram .pos-node {
+      transition: all 0.3s ease;
+      opacity: 0.3;
+      stroke: transparent;
+    }
+    .explanation-position-diagram .pos-node.pos-active {
+      opacity: 1 !important;
+      stroke: #ffffff;
+      stroke-width: 3px;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+      animation: pulse-ring 1.5s infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
     /* 分享战绩按钮：3D 风格 + 相机图标 */
     .btn-result-capture {
       border-bottom: 4px solid rgba(59, 130, 246, 0.8);
@@ -577,7 +627,10 @@
     <div class="flex flex-col gap-1 max-w-2xl mx-auto w-full">
       <p id="chapter-name" class="text-xs text-slate-500 dark:text-gray-400 truncate"></p>
       <div class="flex items-center justify-between gap-2 sm:gap-3">
-        <h1 id="level-title" class="text-xs sm:text-sm font-medium truncate flex-1 min-w-0 text-slate-900 dark:text-gray-100"></h1>
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <h1 id="level-title" class="text-xs sm:text-sm font-medium truncate min-w-0 text-slate-900 dark:text-gray-100"></h1>
+          <span id="level-difficulty-badge" class="level-difficulty-badge flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide hidden" aria-label="当前题目难度">Easy</span>
+        </div>
         <div id="hp-container" class="flex items-center gap-2 flex-wrap flex-1 min-w-0">
           <div class="flex items-center gap-1 sm:gap-2" aria-label="生命值">
             <span id="hp-heart-1" class="hp-heart text-red-500 dark:text-red-400 text-base sm:text-lg transition-all duration-200 select-none" aria-hidden="true">❤️</span>
@@ -627,6 +680,12 @@
       <p class="text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">战局重现</p>
       <div id="explanation-cards" class="flex flex-wrap justify-center gap-2 py-2 flex-shrink-0"></div>
       <p id="explanation-choice" class="text-sm font-medium py-1 flex-shrink-0"></p>
+      <!-- 9 人桌位置范围示意图（仅起手牌/位置题如 KJo UTG 时显示） -->
+      <div id="explanation-position-wrap" class="explanation-position-wrap hidden flex-shrink-0 pt-2 border-t border-slate-200 dark:border-slate-600">
+        <p class="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">9 人桌位置示意图</p>
+        <div id="explanation-position-diagram" class="explanation-position-diagram"></div>
+        <div id="explanation-position-terms" class="text-xs text-slate-600 dark:text-slate-400 mt-2 space-y-1.5"></div>
+      </div>
       <!-- 胜率条 UI -->
       <div class="equity-bar-wrap pt-2 flex-shrink-0">
         <p class="text-xs text-slate-500 dark:text-slate-400 mb-1.5">胜率 (Equity)</p>
@@ -824,7 +883,13 @@
       1: '纪律', 2: '纪律', 3: '位置', 4: '纪律', 5: '牌力', 6: '牌力', 7: '赔率', 8: '赔率', 9: '纪律', 10: '牌力',
       11: '位置', 12: '牌力', 13: '赔率', 14: '心理',
       201: '纪律', 202: '赔率', 203: '赔率', 301: '心理', 302: '心理', 303: '心理',
-      401: '心理', 402: '位置', 403: '心理'
+      401: '心理', 402: '位置', 403: '心理',
+      801: '位置', 802: '位置', 803: '位置', 804: '位置', 805: '位置', 806: '位置', 807: '位置', 808: '位置',
+      809: '位置', 810: '位置', 811: '位置', 812: '位置', 813: '位置', 814: '位置', 815: '位置', 816: '位置',
+      817: '位置', 818: '位置', 819: '位置', 820: '位置', 821: '位置', 822: '位置', 823: '位置', 824: '位置',
+      825: '赔率', 826: '赔率', 827: '心理', 828: '心理', 829: '纪律', 830: '纪律', 831: '赔率', 832: '赔率',
+      833: '心理', 834: '心理', 835: '纪律', 836: '纪律', 837: '赔率', 838: '赔率', 839: '心理', 840: '心理',
+      841: '纪律', 842: '纪律'
     };
     let currentChapterName = '';      // 当前关卡名，用于结算与标题展示
     let currentSessionQuestions = [];
@@ -843,6 +908,9 @@
     var currentQuestionStartTime = 0; // 当前题开始显示的时间戳（Date.now()）
     var comboCount = 0;              // 当前连续答对次数
     var maxComboCount = 0;          // 本局最大连对次数，用于结算「直觉评分」与热血状态
+    var sessionWeightCorrect = 0;   // 本局做对题目的权重之和（难度权重得分）
+    var sessionWeightTotal = 0;    // 本局全部题目的权重之和
+    var DIFFICULTY_WEIGHT = { easy: 1.0, medium: 1.5, hard: 2.0 }; // Easy 1.0, Medium 1.5, Hard 2.0
 
     /** Fisher-Yates 洗牌：原地打乱数组，保证每种排列等概率，返回原数组引用 */
     function shuffle(array) {
@@ -893,6 +961,9 @@
       sharkyModal: document.getElementById('sharky-modal'),
       explanationSheet: document.getElementById('explanation-sheet'),
       explanationTitle: document.getElementById('explanation-title'),
+      explanationPositionWrap: document.getElementById('explanation-position-wrap'),
+      explanationPositionDiagram: document.getElementById('explanation-position-diagram'),
+      explanationPositionTerms: document.getElementById('explanation-position-terms'),
       sharkyFeedback: document.getElementById('sharky-feedback'),
       sharkyEmotion: document.getElementById('sharky-emotion'),
       explanationCards: document.getElementById('explanation-cards'),
@@ -964,6 +1035,15 @@
       el.chapterName.textContent = currentChapterName || '本局题目';
       const subTitle = (level.shortTitle != null ? level.shortTitle : level.title).replace(/\s+/g, '').slice(0, 10);
       el.levelTitle.textContent = `第 ${currentLevelIndex + 1}/${totalInSession} 题：${subTitle}`;
+      var badge = document.getElementById('level-difficulty-badge');
+      if (badge) {
+        var diff = (level.difficulty || '').toLowerCase();
+        var label = diff === 'easy' ? 'Easy' : diff === 'medium' ? 'Med' : diff === 'hard' ? 'Hard' : '';
+        badge.textContent = label;
+        badge.className = 'level-difficulty-badge flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ' + (diff === 'easy' ? 'badge-easy' : diff === 'medium' ? 'badge-medium' : diff === 'hard' ? 'badge-hard' : '');
+        badge.classList.toggle('hidden', !label);
+        badge.setAttribute('aria-label', label ? '当前题目难度：' + label : '');
+      }
       renderTable(level);
 
       el.optionsContainer.innerHTML = '';
@@ -1057,7 +1137,139 @@
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    // 展示反馈解说弹窗（动态标题 + 气泡 + Sharky 头像）
+    // 9 人桌位置顺序（翻牌前行动顺序）：枪口 → … → 庄家 → 小盲 → 大盲
+    var NINE_SEATS = [
+      { label: 'UTG', name: '枪口位', isUtg: true },
+      { label: 'UTG+1', name: '', isUtg: false },
+      { label: 'MP', name: '中位', isUtg: false },
+      { label: 'MP+1', name: '', isUtg: false },
+      { label: 'HJ', name: '劫持位', isUtg: false },
+      { label: 'CO', name: '关煞位', isUtg: false },
+      { label: 'BTN', name: '庄家', isUtg: false },
+      { label: 'SB', name: '小盲', isUtg: false },
+      { label: 'BB', name: '大盲', isUtg: false }
+    ];
+
+    /** 9 人桌位置分布 SVG 源码（椭圆牌桌 + 各位置圆点），用于解说弹窗 */
+    function getNineSeatPositionSVG() {
+      return '<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">' +
+        '<ellipse cx="200" cy="110" rx="160" ry="80" fill="none" stroke="#334155" stroke-width="4" />' +
+        '<ellipse cx="200" cy="110" rx="140" ry="65" fill="#0f172a" stroke="#1e293b" stroke-width="2" />' +
+        '<g id="position-nodes" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">' +
+        '<circle cx="90" cy="60" r="15" fill="#ef4444" class="pos-node" id="node-utg" />' +
+        '<text x="90" y="63" fill="white">UTG</text>' +
+        '<circle cx="60" cy="110" r="15" fill="#ef4444" class="pos-node" id="node-utg1" />' +
+        '<text x="60" y="113" fill="white">+1</text>' +
+        '<circle cx="90" cy="160" r="15" fill="#3b82f6" class="pos-node" id="node-mp1" />' +
+        '<text x="90" y="163" fill="white">MP</text>' +
+        '<circle cx="200" cy="185" r="15" fill="#3b82f6" class="pos-node" id="node-hj" />' +
+        '<text x="200" y="188" fill="white">HJ</text>' +
+        '<circle cx="310" cy="160" r="15" fill="#22c55e" class="pos-node" id="node-co" />' +
+        '<text x="310" y="163" fill="white">CO</text>' +
+        '<circle cx="340" cy="110" r="15" fill="#22c55e" class="pos-node" id="node-btn" />' +
+        '<text x="340" y="113" fill="white">BTN</text>' +
+        '<circle cx="310" cy="60" r="15" fill="#a855f7" class="pos-node" id="node-sb" />' +
+        '<text x="310" y="63" fill="white">SB</text>' +
+        '<circle cx="200" cy="35" r="15" fill="#a855f7" class="pos-node" id="node-bb" />' +
+        '<text x="200" y="38" fill="white">BB</text>' +
+        '<circle cx="150" cy="40" r="12" fill="#ef4444" class="pos-node" id="node-utg2" opacity="0.7" />' +
+        '<text x="150" y="43" fill="white" font-size="8">EP</text>' +
+        '</g>' +
+        '<text x="200" y="115" fill="#334155" font-size="14" opacity="0.5">SHARKY ARENA</text>' +
+        '</svg>';
+    }
+
+    /**
+     * 高亮牌桌上的特定位置（用于解析弹窗：重置所有节点为半透明，再点亮目标）。
+     * @param {string} posId - 对应 SVG 中 circle 的 id（如 'node-utg', 'node-btn'）
+     */
+    function highlightPosition(posId) {
+      var nodes = document.querySelectorAll('.pos-node');
+      nodes.forEach(function (node) {
+        node.classList.remove('pos-active');
+        node.style.opacity = '0.3';
+      });
+      var targetNode = document.getElementById(posId);
+      if (targetNode) {
+        targetNode.classList.add('pos-active');
+        targetNode.style.opacity = '1';
+        var textNode = targetNode.nextElementSibling;
+        if (textNode && textNode.tagName === 'TEXT') {
+          textNode.style.fill = '#ffffff';
+        }
+      }
+    }
+
+    /**
+     * 根据当前题目的位置动态渲染 9 人桌 SVG 并高亮对应圆点。
+     * @param {HTMLElement} container - 用于挂载 SVG 的容器（如 explanation-position-diagram）
+     * @param {string} [posId] - 题目上的 posId，对应 SVG 中圆点 id（如 "node-utg", "node-btn"）。不传则不高亮。
+     */
+    function renderPositionDiagramWithHighlight(container, posId) {
+      if (!container) return;
+      var wrapper = document.createElement('div');
+      wrapper.className = 'poker-table-container w-full max-w-md mx-auto my-4 p-4 bg-slate-900 rounded-xl border border-slate-700';
+      wrapper.innerHTML = getNineSeatPositionSVG();
+      container.innerHTML = '';
+      container.appendChild(wrapper);
+      if (posId) highlightPosition(posId);
+    }
+
+    /** 早位 (EP) / 后位 (LP) 的 posId 列表，用于教练台词 */
+    var POS_EP_IDS = ['node-utg', 'node-utg1', 'node-utg2', 'node-mp1'];
+    var POS_LP_IDS = ['node-co', 'node-btn'];
+
+    function renderPositionDiagramAndTerms(level) {
+      if (!el.explanationPositionWrap || !el.explanationPositionDiagram || !el.explanationPositionTerms) return;
+      var posId = level && level.posId;
+      var show = level && (posId || level.level_id === 11 || level.level_id === 2);
+      if (!show) {
+        el.explanationPositionWrap.classList.add('hidden');
+        el.explanationPositionWrap.classList.remove('explanation-position-visible');
+        return;
+      }
+      if (posId) {
+        renderPositionDiagramWithHighlight(el.explanationPositionDiagram, posId);
+      } else {
+        el.explanationPositionDiagram.innerHTML = '';
+        NINE_SEATS.forEach(function (s) {
+          var span = document.createElement('span');
+          span.className = 'seat' + (s.isUtg ? ' seat-utg' : '');
+          span.textContent = s.label;
+          span.title = s.name || s.label;
+          el.explanationPositionDiagram.appendChild(span);
+        });
+        var youLabel = document.createElement('span');
+        youLabel.className = 'seat seat-you w-full text-center';
+        youLabel.textContent = '↑ UTG = 你在这里，最先行动';
+        el.explanationPositionDiagram.appendChild(youLabel);
+      }
+
+      var termsHtml = '';
+      if (level.level_id === 11) {
+        termsHtml =
+          '<p class="font-semibold text-slate-700 dark:text-slate-300">为何 UTG 用 KJo 加注是错误？</p>' +
+          '<p><strong>隔离 (Isolation)</strong>：你加注后，后位玩家会用 3-Bet（反加）把你「隔离」进单挑底池，他们的 3-Bet 范围多为 AK/AQ/AJ/KQ/QQ+ 等强牌，你 KJo 面对这些范围胜率极低，只能弃牌，等于白送加注的筹码。</p>' +
+          '<p><strong>被主导 (Dominated)</strong>：KJo 被 AK、AQ、AJ、KQ 等「主导」——对方与你共享高牌（K 或 J）但踢脚更强，或牌力完全覆盖你。翻牌后你中 K 或 J 时，对手常能赢更多或让你难以抉择，长期 -EV。</p>';
+      } else if (level.level_id === 2) {
+        termsHtml =
+          '<p class="font-semibold text-slate-700 dark:text-slate-300">枪口位 (UTG)</p>' +
+          '<p>全桌最先行动，信息最少，手牌范围应最紧。72o 在此位置加注或跟注都是严重错误。</p>';
+      } else if (posId) {
+        if (POS_EP_IDS.indexOf(posId) !== -1) {
+          termsHtml = '<p class="font-semibold text-amber-700 dark:text-amber-400">早位 (EP)</p><p>看看你的位置！你是在枪口下跳舞，稍微拿错一张牌就是自杀。范围要最紧。</p>';
+        } else if (POS_LP_IDS.indexOf(posId) !== -1) {
+          termsHtml = '<p class="font-semibold text-emerald-700 dark:text-emerald-400">后位 (LP)</p><p>这个位置你都不敢加注？你是来桌上喝矿泉水的吗？用好位置偷盲、隔离。</p>';
+        } else {
+          termsHtml = '<p class="font-semibold text-slate-700 dark:text-slate-300">位置示意图</p><p>高亮圆点 = 本题你的座位。SB/BB 不要为底池硬防；BTN 是你的领地。</p>';
+        }
+      }
+      el.explanationPositionTerms.innerHTML = termsHtml;
+      el.explanationPositionWrap.classList.remove('hidden');
+      el.explanationPositionWrap.classList.add('explanation-position-visible');
+    }
+
+    // 展示反馈解说弹窗（动态标题 + 气泡 + Sharky 头像 + 可选位置示意图）
     function showFeedback(option, level) {
       if (el.explanationTitle) {
         el.explanationTitle.textContent = getFeedbackTitle(option.is_correct);
@@ -1090,6 +1302,8 @@
         el.explanationChoice.textContent = '你的选择：' + option.action + ' ❌';
       }
 
+      renderPositionDiagramAndTerms(level);
+
       modalShowsWrongAnswer = !option.is_correct;
       el.btnNextLevel.textContent = option.is_correct ? '继续' : '重新选择';
 
@@ -1105,7 +1319,10 @@
       totalQuestions++;
       if (option.is_correct) correctCount++;
       var level = getCurrentLevel();
-      var cat = (level && (level.category || LEVEL_CATEGORY[level.level_id])) || '牌力';
+      var w = (level && DIFFICULTY_WEIGHT[level.difficulty]) ? DIFFICULTY_WEIGHT[level.difficulty] : 1;
+      sessionWeightTotal += w;
+      if (option.is_correct) sessionWeightCorrect += w;
+      var cat = (level && (level.category != null && level.category !== '' ? level.category : LEVEL_CATEGORY[level.level_id])) || '牌力';
       if (!sessionDimensionStats[cat]) sessionDimensionStats[cat] = { correct: 0, total: 0 };
       sessionDimensionStats[cat].total++;
       if (option.is_correct) sessionDimensionStats[cat].correct++;
@@ -1201,27 +1418,28 @@
       el.gameoverModal.classList.add('hidden');
       el.victoryModal.classList.add('hidden');
 
-      const score = totalQuestions ? Math.round((correctCount / totalQuestions) * 100) : 0;
+      var weightedScore = sessionWeightTotal > 0 ? Math.round((sessionWeightCorrect / sessionWeightTotal) * 100) : 0;
       const chapterName = currentChapterName || '本关卡';
-      el.resultScore.textContent = score + ' 分';
-      el.resultChapterSummary.textContent = '你在 ' + chapterName + ' 中的表现：答对 ' + correctCount + '/' + totalQuestions + ' 题，正确率 ' + score + '%';
-      // 近 3 局平均
+      el.resultScore.textContent = weightedScore + ' 分';
+      el.resultChapterSummary.textContent = '本局答对 ' + correctCount + '/15 题 · 加权得分 ' + weightedScore + ' 分';
+      // 近期表现：最近 3 局加权得分，不足 3 局提示「再玩 N 局解锁平均分」
       var storageKey = 'pokerJourney_lastScores';
       var lastScores = [];
       try {
         var raw = localStorage.getItem(storageKey);
         if (raw) lastScores = JSON.parse(raw);
       } catch (e) {}
-      lastScores.push(score);
+      lastScores.push(weightedScore);
       lastScores = lastScores.slice(-3);
       try { localStorage.setItem(storageKey, JSON.stringify(lastScores)); } catch (e) {}
       if (el.resultAvgSummary) {
-        if (lastScores.length >= 2) {
-          var avg = Math.round(lastScores.reduce(function (a, b) { return a + b; }, 0) / lastScores.length);
-          el.resultAvgSummary.textContent = '近' + lastScores.length + '局平均：' + avg + ' 分（多局平均更接近真实水平）';
+        if (lastScores.length >= 3) {
+          var avg = Math.round(lastScores.reduce(function (a, b) { return a + b; }, 0) / 3);
+          el.resultAvgSummary.textContent = '近 3 局平均表现：' + avg + ' 分';
           el.resultAvgSummary.style.display = '';
         } else {
-          el.resultAvgSummary.textContent = '再玩几局可解锁「近3局平均」，更稳定反映实力';
+          var needMore = 3 - lastScores.length;
+          el.resultAvgSummary.textContent = '再玩 ' + needMore + ' 局解锁平均分';
           el.resultAvgSummary.style.display = '';
         }
       }
@@ -1237,7 +1455,7 @@
         el.resultTimeSummary.textContent = '本局用时 ' + timeStr + ' · 平均 ' + avgSec + '秒/题';
         el.resultTimeSummary.style.display = totalTimeMs > 0 ? '' : 'none';
       }
-      var isFast = score >= 90 && avgTimeMs > 0 && avgTimeMs <= FAST_AVG_MS;
+      var isFast = weightedScore >= 90 && avgTimeMs > 0 && avgTimeMs <= FAST_AVG_MS;
 
       // 五维能力条形图：按 DIMENSION_NAMES 顺序渲染，无答题的维度显示 0%
       var barColors = ['#34d399', '#60a5fa', '#a78bfa', '#f472b6', '#fbbf24'];
@@ -1258,12 +1476,20 @@
 
       var wrongCount = totalQuestions - correctCount;
       var DIMENSION_DISPLAY_NAMES = { '牌力': '牌力判断', '位置': '位置意识', '赔率': '赔率计算', '心理': '心理博弈', '纪律': '纪律与取舍' };
+      var DIMENSION_WEAKNESS_TIPS = {
+        '牌力': '建议多练起手牌强度与翻牌后牌力判断。',
+        '位置': '建议关注 BTN 位的偷盲时机与早位范围收紧。',
+        '赔率': '建议熟记听牌补牌数与底池赔率。',
+        '心理': '建议区分价值下注与诈唬，读懂对手范围。',
+        '纪律': '建议少追牌、少硬防，该弃就弃。'
+      };
       var weaknessDim = '';
+      var weaknessKey = '';
       var maxWrong = 0;
       DIMENSION_NAMES.forEach(function (d) {
         var st = sessionDimensionStats[d] || { correct: 0, total: 0 };
         var w = st.total - st.correct;
-        if (st.total > 0 && w > maxWrong) { maxWrong = w; weaknessDim = DIMENSION_DISPLAY_NAMES[d] || d; }
+        if (st.total > 0 && w > maxWrong) { maxWrong = w; weaknessDim = DIMENSION_DISPLAY_NAMES[d] || d; weaknessKey = d; }
       });
 
       el.resultScore.classList.remove('tier-s', 'tier-a', 'tier-b');
@@ -1290,20 +1516,17 @@
         tierClass = 'tier-b';
       }
       if (el.resultWeakness) {
-        if (weaknessDim && wrongCount >= 3) {
-          el.resultWeakness.textContent = '你在「' + weaknessDim + '」题目中丢分最多。';
+        if (weaknessDim && wrongCount >= 1) {
+          var tip = (weaknessKey && DIMENSION_WEAKNESS_TIPS[weaknessKey]) ? DIMENSION_WEAKNESS_TIPS[weaknessKey] : '建议针对性补强该维度。';
+          el.resultWeakness.textContent = '你的弱点：' + weaknessDim + '。' + tip;
           el.resultWeakness.classList.remove('hidden');
         } else {
           el.resultWeakness.classList.add('hidden');
         }
       }
       if (el.resultComboSummary) {
-        if (maxComboCount >= 5) {
-          el.resultComboSummary.textContent = '直觉评分：本局最高连对 ' + maxComboCount + ' 题';
-          el.resultComboSummary.style.display = '';
-        } else {
-          el.resultComboSummary.style.display = 'none';
-        }
+        el.resultComboSummary.style.display = '';
+        el.resultComboSummary.textContent = '最长连对次数：' + maxComboCount + (maxComboCount >= 5 ? '（直觉在线）' : '');
       }
       el.resultTitle.textContent = title;
       el.resultTitle.className = 'result-title ' + (tierClass === 'tier-s' ? 'text-amber-400' : tierClass === 'tier-a' ? 'text-green-400' : 'text-red-400');
@@ -1314,9 +1537,10 @@
       var bestKey = 'pokerJourney_best_' + currentDifficulty;
       try {
         var bestRaw = localStorage.getItem(bestKey);
-        var best = bestRaw ? JSON.parse(bestRaw) : { correct: 0, total: QUESTIONS_PER_GAME };
-        if (correctCount > best.correct || (correctCount === best.correct && totalQuestions >= best.total)) {
-          localStorage.setItem(bestKey, JSON.stringify({ correct: correctCount, total: totalQuestions }));
+        var best = bestRaw ? JSON.parse(bestRaw) : { correct: 0, total: QUESTIONS_PER_GAME, weightedScore: 0 };
+        var prevScore = best.weightedScore != null ? best.weightedScore : (best.total ? Math.round((best.correct / best.total) * 100) : 0);
+        if (weightedScore > prevScore || (weightedScore === prevScore && correctCount >= best.correct)) {
+          localStorage.setItem(bestKey, JSON.stringify({ correct: correctCount, total: totalQuestions, weightedScore: weightedScore }));
         }
       } catch (e) {}
       el.resultPage.classList.remove('result-exiting');
@@ -1325,14 +1549,16 @@
       if (window.audioEngine) audioEngine.play('victory');
     }
 
-    // “进入下一章”：萌新→野生票友，野生票友→懂哥；离开前保存本难度最佳成绩
+    // “进入下一章”：萌新→野生票友，野生票友→懂哥；离开前保存本难度最佳成绩（按加权分比较）
     function goNextChapter() {
+      var weightedScore = sessionWeightTotal > 0 ? Math.round((sessionWeightCorrect / sessionWeightTotal) * 100) : 0;
       var bestKey = 'pokerJourney_best_' + currentDifficulty;
       try {
         var bestRaw = localStorage.getItem(bestKey);
-        var best = bestRaw ? JSON.parse(bestRaw) : { correct: 0, total: QUESTIONS_PER_GAME };
-        if (correctCount > best.correct || (correctCount === best.correct && totalQuestions >= best.total)) {
-          localStorage.setItem(bestKey, JSON.stringify({ correct: correctCount, total: totalQuestions }));
+        var best = bestRaw ? JSON.parse(bestRaw) : { correct: 0, total: QUESTIONS_PER_GAME, weightedScore: 0 };
+        var prevScore = best.weightedScore != null ? best.weightedScore : (best.total ? Math.round((best.correct / best.total) * 100) : 0);
+        if (weightedScore > prevScore || (weightedScore === prevScore && correctCount >= best.correct)) {
+          localStorage.setItem(bestKey, JSON.stringify({ correct: correctCount, total: totalQuestions, weightedScore: weightedScore }));
         }
       } catch (e) {}
       el.chapterDoneModal.classList.add('hidden');
@@ -1363,6 +1589,8 @@
       MAX_HP = 5;
       correctCount = 0;
       totalQuestions = 0;
+      sessionWeightCorrect = 0;
+      sessionWeightTotal = 0;
       sessionDimensionStats = {};
       DIMENSION_NAMES.forEach(function (d) { sessionDimensionStats[d] = { correct: 0, total: 0 }; });
       sessionAnswerTimes = [];
@@ -1460,44 +1688,83 @@
       if (e.target === screenshotModal) closeScreenshotPreview();
     });
 
-    // ---------- 欢迎页：固定关卡 + 随机抽题，startGame(difficulty) ----------
-    // 每次点击首页按钮都会：过滤 -> 洗牌 -> 截取 6 题，保证每次进入关卡题目顺序都不同
+    // ---------- 欢迎页：分层抽题（5 easy + 5 medium + 5 hard）+ 难度权重得分 ----------
+    /** 从池中排除已用题后洗牌取前 n 道；不足则返回全部 */
+    function takeFromPool(pool, usedIds, n) {
+      var list = usedIds && usedIds.length ? pool.filter(function (q) { return usedIds.indexOf(q.level_id) === -1; }) : pool.slice();
+      if (list.length < n) list = pool.slice();
+      shuffle(list);
+      return list.slice(0, n);
+    }
+
     function startGame(difficulty) {
       const config = typeof CHAPTER_CONFIG !== 'undefined' ? CHAPTER_CONFIG[difficulty] : null;
       if (!config) return;
 
       const chapterName = config.name;
       const all = typeof allQuestions !== 'undefined' ? allQuestions : [];
+      var easyChapter = '纸面萌新';
+      var mediumChapter = '野生票友';
+      var hardChapter = '资深懂哥';
 
-      // 1. 过滤：筛选出当前难度（chapter）下的所有题目
-      let filteredPool = all.filter((q) => q.chapter === chapterName);
+      // 1. 分层抽题：easy 5 + medium 5 + hard 5（某类不足则由其余池补位）
+      var poolEasy = all.filter(function (q) { return q.chapter === easyChapter; });
+      var poolMedium = all.filter(function (q) { return q.chapter === mediumChapter; });
+      var poolHard = all.filter(function (q) { return q.chapter === hardChapter; });
+      var usedEasy = lastSessionQuestionIdsByChapter[easyChapter] || [];
+      var usedMedium = lastSessionQuestionIdsByChapter[mediumChapter] || [];
+      var usedHard = lastSessionQuestionIdsByChapter[hardChapter] || [];
 
-      // 2. 本局该关已用过的题（含多次回滚）：全部排除，优先用新题；用尽后才从全量池抽（允许重复）
-      var poolCopy = filteredPool.slice();
-      var usedIds = lastSessionQuestionIdsByChapter[chapterName];
-      if (usedIds && usedIds.length > 0) {
-        var excluded = filteredPool.filter((q) => !usedIds.includes(q.level_id));
-        if (excluded.length >= QUESTIONS_PER_GAME) poolCopy = excluded;
+      var takeEasy = takeFromPool(poolEasy, usedEasy, 5);
+      var takeMedium = takeFromPool(poolMedium, usedMedium, 5);
+      var takeHard = takeFromPool(poolHard, usedHard, 5);
+      var need = QUESTIONS_PER_GAME - (takeEasy.length + takeMedium.length + takeHard.length);
+      if (need > 0) {
+        var rest = [];
+        poolEasy.forEach(function (q) { if (takeEasy.indexOf(q) === -1) rest.push(q); });
+        poolMedium.forEach(function (q) { if (takeMedium.indexOf(q) === -1) rest.push(q); });
+        poolHard.forEach(function (q) { if (takeHard.indexOf(q) === -1) rest.push(q); });
+        shuffle(rest);
+        for (var i = 0; i < rest.length && (takeEasy.length < 5 || takeMedium.length < 5 || takeHard.length < 5); i++) {
+          if (takeEasy.length < 5) takeEasy.push(rest[i]);
+          else if (takeMedium.length < 5) takeMedium.push(rest[i]);
+          else takeHard.push(rest[i]);
+        }
       }
 
-      // 3. 洗牌并截取前 6 道
-      shuffle(poolCopy);
-      currentSessionQuestions = poolCopy.slice(0, QUESTIONS_PER_GAME);
-      // 本局该关已用题累积追加（回滚后再进同一关时继续排除这些题，直到没有新题才重复）
-      if (!lastSessionQuestionIdsByChapter[chapterName]) lastSessionQuestionIdsByChapter[chapterName] = [];
-      currentSessionQuestions.forEach(function (q) {
-        if (lastSessionQuestionIdsByChapter[chapterName].indexOf(q.level_id) === -1) {
-          lastSessionQuestionIdsByChapter[chapterName].push(q.level_id);
+      currentSessionQuestions = takeEasy.concat(takeMedium).concat(takeHard);
+      if (currentSessionQuestions.length < QUESTIONS_PER_GAME) {
+        var usedIds = currentSessionQuestions.map(function (q) { return q.level_id; });
+        var fallbackPool = all.filter(function (q) { return usedIds.indexOf(q.level_id) === -1; });
+        shuffle(fallbackPool);
+        for (var j = 0; currentSessionQuestions.length < QUESTIONS_PER_GAME && j < fallbackPool.length; j++) {
+          currentSessionQuestions.push(fallbackPool[j]);
         }
+      }
+      if (currentSessionQuestions.length === 0 && all.length > 0) {
+        var fullCopy = all.slice();
+        shuffle(fullCopy);
+        currentSessionQuestions = fullCopy.slice(0, Math.min(QUESTIONS_PER_GAME, fullCopy.length));
+      }
+      shuffle(currentSessionQuestions);
+
+      [easyChapter, mediumChapter, hardChapter].forEach(function (ch) {
+        if (!lastSessionQuestionIdsByChapter[ch]) lastSessionQuestionIdsByChapter[ch] = [];
+        currentSessionQuestions.forEach(function (q) {
+          if (q.chapter === ch && lastSessionQuestionIdsByChapter[ch].indexOf(q.level_id) === -1) {
+            lastSessionQuestionIdsByChapter[ch].push(q.level_id);
+          }
+        });
       });
 
-      // 4. 初始化：当前题下标与游戏状态重置
       currentChapterName = chapterName;
       currentLevelIndex = 0;
       currentDifficulty = difficulty;
       chosenOption = null;
       correctCount = 0;
       totalQuestions = 0;
+      sessionWeightCorrect = 0;
+      sessionWeightTotal = 0;
       sessionDimensionStats = {};
       DIMENSION_NAMES.forEach(function (d) { sessionDimensionStats[d] = { correct: 0, total: 0 }; });
       sessionAnswerTimes = [];
